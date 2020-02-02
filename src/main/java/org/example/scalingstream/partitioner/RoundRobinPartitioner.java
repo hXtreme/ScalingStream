@@ -1,7 +1,7 @@
 package org.example.scalingstream.partitioner;
 
 import org.example.scalingstream.Record;
-import org.example.scalingstream.operator.OutputBuffer;
+import org.example.scalingstream.operator.OutputBuffers;
 
 public class RoundRobinPartitioner extends Partitioner {
     private int i = 0;
@@ -17,9 +17,9 @@ public class RoundRobinPartitioner extends Partitioner {
     }
 
     @Override
-    public void assignPartition(OutputBuffer outputBuffer, Record[] records) {
+    public void assignPartition(OutputBuffers outputBuffers, Record[] records) {
         for (Record record: records) {
-            outputBuffer.append(assignPartition(record), record);
+            outputBuffers.append(assignPartition(record), record);
         }
     }
 }
