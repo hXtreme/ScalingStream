@@ -6,7 +6,7 @@ import org.example.scalingstream.operator.OutputBuffers;
 public class RoundRobinPartitioner extends Partitioner {
     private int i = 0;
 
-    RoundRobinPartitioner(int numOut) {
+    public RoundRobinPartitioner(int numOut) {
         super(numOut);
         this.i = 0;
     }
