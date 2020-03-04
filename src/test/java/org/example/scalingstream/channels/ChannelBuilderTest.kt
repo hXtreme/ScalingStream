@@ -1,63 +1,72 @@
 package org.example.scalingstream.channels
 
-import org.example.scalingstream.Record
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import java.time.Instant
 import java.util.*
 import kotlin.collections.HashMap
 
 internal class ChannelBuilderTest {
 
     @Test
-    fun buildChannelContext() {
-        val channelArgs = HashMap<ChannelArgs, Any>()
+    fun localChannelBuilderTest() {
+        val TEST_NAME = "${Companion.TEST_CLASS}->LocalBuilder"
 
-        channelArgs[ChannelArgs.LOCAL_QUEUE_DICT] = HashMap<String, ArrayDeque<Record>>()
-        channelArgs[ChannelArgs.MAX_QUEUE_LEN] = 2
+        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val cb = ChannelBuilder(
-            ::LocalChannelContext,
-            ::LocalInputChannel,
-            ::LocalOutputChannel,
-            channelArgs
-        )
-
-        val ctx = cb.buildChannelContext("Test->buildChannelContext")
-        assert(true)
+        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME:Builder", channelArgs)
+        assertTrue(true)
     }
 
     @Test
-    fun buildInputChannel() {
-        val channelArgs = HashMap<ChannelArgs, Any>()
+    fun localChannelContextTest() {
+        val TEST_NAME = "${Companion.TEST_CLASS}->LocalContext"
 
-        channelArgs[ChannelArgs.LOCAL_QUEUE_DICT] = HashMap<String, ArrayDeque<Record>>()
-        channelArgs[ChannelArgs.MAX_QUEUE_LEN] = 2
+        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val cb = ChannelBuilder(
-            ::LocalChannelContext,
-            ::LocalInputChannel,
-            ::LocalOutputChannel,
-            channelArgs
-        )
+        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
 
-        val inpChannel = cb.buildInputChannel("Test->buildInputChannel")
-        assert(true)
+        val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+        assertTrue(true)
     }
 
     @Test
-    fun buildOutputChannel() {
-        val channelArgs = HashMap<ChannelArgs, Any>()
+    fun localInputChannelTest() {
+        val TEST_NAME = "${Companion.TEST_CLASS}->LocalInput"
 
-        channelArgs[ChannelArgs.LOCAL_QUEUE_DICT] = HashMap<String, ArrayDeque<Record>>()
-        channelArgs[ChannelArgs.MAX_QUEUE_LEN] = 2
+        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val cb = ChannelBuilder(
-            ::LocalChannelContext,
-            ::LocalInputChannel,
-            ::LocalOutputChannel,
-            channelArgs
-        )
+        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
 
-        val outChannel = cb.buildOutputChannel("Test->buildOutputChannel")
-        assert(true)
+        val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+
+        val localInput = localChannelBuilder.buildInputChannel<Unit>("$TEST_NAME")
+        assertTrue(true)
+    }
+
+    @Test
+    fun localOutputChannelTest() {
+        val TEST_NAME = "${Companion.TEST_CLASS}->LocalOutput"
+
+        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
+
+        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
+
+        val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+
+        val localOutput = localChannelBuilder.buildOutputChannel<Unit>("$TEST_NAME")
+        assertTrue(true)
+    }
+
+    companion object {
+        const val TEST_CLASS = "Test->ChannelBuilderTest"
     }
 }

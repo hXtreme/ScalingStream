@@ -1,27 +1,22 @@
 package org.example.scalingstream.channels
 
-enum class ChannelArgs {
-    LOCAL_QUEUE_DICT, MAX_QUEUE_LEN
+
+enum class ChannelArg {
+    LOCAL_QUEUE_DICT, MAX_QUEUE_LEN,
+    JIFFY_HOST, JIFFY_SERVICE_PORT, JIFFY_LEASE_PORT,
+    REDIS_HOST, REDIS_PORT, REDIS_DB
 }
 
-class ChannelBuilder(
-    private val channelContext: (String, Map<ChannelArgs, Any>) -> DataChannelContext,
-    private val inputChannel: (String, Map<ChannelArgs, Any>) -> InputChannel,
-    private val outputChannel: (String, Map<ChannelArgs, Any>) -> OutputChannel,
-    private val channelArgs: Map<ChannelArgs, Any>
-) {
+typealias ChannelArgs = HashMap<ChannelArg, Any>
 
-    fun buildChannelContext(name: String): DataChannelContext {
-        return channelContext(name, channelArgs)
-    }
+interface ChannelBuilder {
+    val name: String
+    val type: String
+    val channelArgs: ChannelArgs
 
-    fun buildInputChannel(name: String): InputChannel {
-        return inputChannel(name, channelArgs)
-    }
+    fun <Type> buildChannelContext(name: String): DataChannelContext
 
-    fun buildOutputChannel(name: String): OutputChannel {
-        return outputChannel(name, channelArgs)
-    }
+    fun <Type> buildInputChannel(name: String) : InputChannel<Type>
+
+    fun <Type> buildOutputChannel(name: String) : OutputChannel<Type>
 }
-
-
