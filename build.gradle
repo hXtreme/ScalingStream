@@ -18,6 +18,8 @@ dependencies {
 
     implementation 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.6.0'
+
+    compile 'io.github.jupf.staticlog:staticlog:2.2.0'
 }
 
 sourceCompatibility = 1.8
