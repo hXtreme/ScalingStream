@@ -22,7 +22,8 @@ internal class SourceTest {
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
         val channelBuilder: ChannelBuilder = LocalChannelBuilder("${SinkTest.TEST_CLASS}->buildSource", channelArgs)
-        val s = Source<Any>(
+        @SuppressWarnings("unused")
+        val s = Source(
             0,
             "0",
             listOf("1"),

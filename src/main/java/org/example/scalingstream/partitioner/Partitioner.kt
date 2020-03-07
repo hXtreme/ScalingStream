@@ -6,7 +6,7 @@ abstract class Partitioner internal constructor(protected val numOut: Int) {
 
     abstract fun <Type> assignPartition(record: Type): Int
 
-    open fun <Type> assignPartition(
+    open fun <Type> partitionBatch(
         outputBuffers: OutputBuffers<Type>,
         recordBatch: List<Type>
     ) {

@@ -15,7 +15,7 @@ class Source<OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (Unit) -> OutputType
-) : Operator<Unit, OutputType>(
+) : SimpleTransformationOperator<Unit, OutputType, OutputType>(
     idx,
     operatorID,
     outOperatorIDs,
@@ -41,7 +41,7 @@ class Source<OutputType>(
             if (recordBatch == CONSTANTS.DONE_MARKER) {
                 done = true
             } else {
-                partitioner.assignPartition(outputBuffers, recordBatch)
+                partitioner.partitionBatch(outputBuffers, recordBatch)
                 numProcessed += recordBatch.size
                 numBatches++
             }

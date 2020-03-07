@@ -22,15 +22,16 @@ internal class SinkTest {
 
         val channelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_CLASS->buildSink", channelArgs)
 
-        val sink = Sink<Any>(
+        @SuppressWarnings("unused")
+        val sink = Sink(
             0,
             "0",
             listOf(),
             1,
             channelBuilder,
-            RoundRobinPartitioner(1),
             1,
-            fun(_): Unit {}
+            RoundRobinPartitioner(1),
+            fun(_: Unit) {}
         )
 
         assertTrue(true)

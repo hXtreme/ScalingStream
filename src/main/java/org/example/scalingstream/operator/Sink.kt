@@ -15,10 +15,10 @@ class Sink<InputType>(
     outOperatorIDs: List<String>,
     upstreamCount: Int,
     channelBuilder: ChannelBuilder,
-    partitioner: Partitioner,
     batchSize: Int,
-    operatorFn: (Any?) -> Unit
-) : Operator<InputType, Unit>(
+    partitioner: Partitioner,
+    operatorFn: (InputType) -> Unit
+) : SimpleTransformationOperator<InputType, Unit, Unit>(
     idx,
     operatorID,
     outOperatorIDs,
@@ -47,5 +47,9 @@ class Sink<InputType>(
                 numProcessed++
             }
         }
+    }
+
+    override fun processRecord(record: InputType) {
+        error("Unused function: shouldn't have been called")
     }
 }

@@ -4,8 +4,10 @@ import org.example.scalingstream.CONSTANTS
 import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
+typealias SingleInputSimpleTransformationOperator<InputType, FnOut, OutputType> =
+        SingleInputOperator<InputType, InputType, FnOut, OutputType>
 
-abstract class SingleInputOperator<InputType, OutputType>(
+abstract class SingleInputOperator<InputType, FnInp, FnOut, OutputType>(
     idx: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
@@ -13,8 +15,8 @@ abstract class SingleInputOperator<InputType, OutputType>(
     channelBuilder: ChannelBuilder,
     batchSize: Int,
     partitioner: Partitioner,
-    operatorFn: (InputType) -> OutputType
-) : Operator<InputType, OutputType>(
+    operatorFn: (FnInp) -> FnOut
+) : Operator<InputType, FnInp, FnOut ,OutputType>(
     idx,
     operatorID,
     outOperatorIDs,
@@ -28,10 +30,10 @@ abstract class SingleInputOperator<InputType, OutputType>(
     private val outputChannels = outOperatorIDs
         .map { outOperatorID -> channelBuilder.buildOutputChannel<OutputType>(outOperatorID) }
 
-    private val outputBuffers = OutputBuffers<OutputType>(batchSize, outputChannels)
-    var numDoneMarkers = 0
+    protected val outputBuffers = OutputBuffers<OutputType>(batchSize, outputChannels)
+    private var numDoneMarkers = 0
 
-    val state: HashMap<Any, Any> by lazy { HashMap<Any, Any>() }
+    // protected val state: HashMap<Any, Any> by lazy { HashMap<Any, Any>() }
 
     override fun run() {
         var done = false
@@ -49,5 +51,12 @@ abstract class SingleInputOperator<InputType, OutputType>(
                 numProcessed += recordsBatch.size
             }
         }
+    }
+
+    override fun processRecordBatch(recordBatch: List<InputType>) {
+        partitioner.partitionBatch(
+            outputBuffers,
+            recordBatch.map { record -> processRecord(record) }
+        )
     }
 }

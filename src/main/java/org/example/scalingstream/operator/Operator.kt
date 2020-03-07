@@ -4,7 +4,16 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 
-abstract class Operator<InputType, OutputType>(
+typealias OperatorConstructor<InputType, FnInp, FnOut, OutputType> =
+            (Int, String, List<String>, Int, ChannelBuilder, Int, Partitioner, (FnInp) -> FnOut) -> Operator<InputType, FnInp, FnOut, OutputType>
+
+typealias SimpleTransformationOperatorConstructor<InputType, FnOut, OutputType> =
+        OperatorConstructor<InputType, InputType, FnOut, OutputType>
+
+typealias SimpleTransformationOperator<InputType, FnOut, OutputType> =
+        Operator<InputType, InputType, FnOut, OutputType>
+
+abstract class Operator<InputType, FnInp, FnOut, OutputType>(
     protected val idx: Int,
     protected val operatorID: String,
     protected val outOperatorIDs: List<String>,
@@ -12,15 +21,15 @@ abstract class Operator<InputType, OutputType>(
     protected val channelBuilder: ChannelBuilder,
     protected val batchSize: Int,
     protected val partitioner: Partitioner,
-    protected val operatorFn: (InputType) -> OutputType
+    protected val operatorFn: (FnInp) -> FnOut
 ) {
     protected val numOut: Int = outOperatorIDs.size
     protected var numProcessed: Int = 0
 
     abstract fun run(): Any
 
-    protected open fun processRecord(record: InputType) {
-        operatorFn(record)
+    open fun processRecord(record: InputType): OutputType {
+        error("Needs to be overridden")
     }
 
     protected open fun processRecordBatch(recordBatch: List<InputType>) {
