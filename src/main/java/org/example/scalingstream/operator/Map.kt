@@ -12,7 +12,7 @@ class Map<InputType, OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> OutputType
-) : SingleInputSimpleTransformationOperator<InputType, OutputType, OutputType>(
+) : SingleInputSimpleOperator<InputType, OutputType>(
     idx,
     operatorID,
     outOperatorIDs,

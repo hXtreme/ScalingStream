@@ -15,7 +15,7 @@ class Source<OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (Unit) -> OutputType
-) : SimpleTransformationOperator<Unit, OutputType, OutputType>(
+) : SimpleOperator<Unit, OutputType>(
     idx,
     operatorID,
     outOperatorIDs,

@@ -12,7 +12,7 @@ class Filter<InputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> Boolean
-) : SingleInputSimpleTransformationOperator<InputType, Boolean, InputType>(
+) : SingleInputOperator<InputType, InputType, Boolean, InputType>(
     idx,
     operatorID,
     outOperatorIDs,

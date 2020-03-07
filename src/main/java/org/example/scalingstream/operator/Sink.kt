@@ -18,7 +18,7 @@ class Sink<InputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> Unit
-) : SimpleTransformationOperator<InputType, Unit, Unit>(
+) : SimpleOperator<InputType, Unit>(
     idx,
     operatorID,
     outOperatorIDs,

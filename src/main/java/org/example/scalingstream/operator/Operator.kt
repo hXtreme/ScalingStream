@@ -5,13 +5,14 @@ import org.example.scalingstream.partitioner.Partitioner
 
 
 typealias OperatorConstructor<InputType, FnInp, FnOut, OutputType> =
-            (Int, String, List<String>, Int, ChannelBuilder, Int, Partitioner, (FnInp) -> FnOut) -> Operator<InputType, FnInp, FnOut, OutputType>
+            (Int, String, List<String>, Int, ChannelBuilder, Int, Partitioner, (FnInp) -> FnOut)
+        -> Operator<InputType, FnInp, FnOut, OutputType>
 
-typealias SimpleTransformationOperatorConstructor<InputType, FnOut, OutputType> =
-        OperatorConstructor<InputType, InputType, FnOut, OutputType>
+typealias SimpleOperator<InputType, OutputType> =
+        Operator<InputType, InputType, OutputType, OutputType>
 
-typealias SimpleTransformationOperator<InputType, FnOut, OutputType> =
-        Operator<InputType, InputType, FnOut, OutputType>
+typealias SimpleOperatorConstructor<InputType, OutputType> =
+        OperatorConstructor<InputType, InputType, OutputType, OutputType>
 
 abstract class Operator<InputType, FnInp, FnOut, OutputType>(
     protected val idx: Int,

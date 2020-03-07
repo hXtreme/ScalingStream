@@ -12,7 +12,7 @@ class KeyBy<InputType, KeyType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> KeyType
-) : SingleInputSimpleTransformationOperator<InputType, KeyType, Pair<KeyType,  InputType>>(
+) : SingleInputOperator<InputType, InputType, KeyType, Pair<KeyType, InputType>>(
     idx,
     operatorID,
     outOperatorIDs,

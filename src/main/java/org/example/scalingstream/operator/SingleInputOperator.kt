@@ -4,8 +4,8 @@ import org.example.scalingstream.CONSTANTS
 import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
-typealias SingleInputSimpleTransformationOperator<InputType, FnOut, OutputType> =
-        SingleInputOperator<InputType, InputType, FnOut, OutputType>
+typealias SingleInputSimpleOperator<InputType, OutputType> =
+        SingleInputOperator<InputType, InputType, OutputType, OutputType>
 
 abstract class SingleInputOperator<InputType, FnInp, FnOut, OutputType>(
     idx: Int,
@@ -16,7 +16,7 @@ abstract class SingleInputOperator<InputType, FnInp, FnOut, OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (FnInp) -> FnOut
-) : Operator<InputType, FnInp, FnOut ,OutputType>(
+) : Operator<InputType, FnInp, FnOut, OutputType>(
     idx,
     operatorID,
     outOperatorIDs,

@@ -12,7 +12,7 @@ class FlatMap<InputType, OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> Iterable<OutputType>
-) : SingleInputSimpleTransformationOperator<InputType,  Iterable<OutputType>, OutputType>(
+) : SingleInputOperator<InputType, InputType, Iterable<OutputType>, OutputType>(
     idx,
     operatorID,
     outOperatorIDs,
