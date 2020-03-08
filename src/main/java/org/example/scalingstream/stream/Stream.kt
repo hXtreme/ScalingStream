@@ -49,6 +49,12 @@ open class Stream<Incoming, Outgoing>(
         partitioner: (Int) -> Partitioner = this.partitioner
     ): Unit = inspect(batchSize, parallelism, partitioner) { print(it) }
 
+    fun drop(
+        batchSize: Int = this.batchSize,
+        parallelism: Int = this.parallelism,
+        partitioner: (Int) -> Partitioner = this.partitioner
+    ) : Unit = inspect(batchSize, parallelism, partitioner) { _ -> }
+
     fun <OutputType> map(
         batchSize: Int = this.batchSize,
         parallelism: Int = this.parallelism,
