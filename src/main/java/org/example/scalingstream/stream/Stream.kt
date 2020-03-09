@@ -5,7 +5,7 @@ import org.example.scalingstream.partitioner.Partitioner
 import org.example.scalingstream.partitioner.RoundRobinPartitioner
 
 open class Stream<Incoming, Outgoing>(
-    val node: StreamBuilder.Node<Incoming, *, *, Outgoing>,
+    val node: Node<Incoming, Outgoing>,
     val batchSize: Int = 1,
     val parallelism: Int = 1,
     val partitioner: (Int) -> Partitioner = ::RoundRobinPartitioner

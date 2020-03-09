@@ -4,7 +4,7 @@ import org.example.scalingstream.operator.Reduce
 import org.example.scalingstream.partitioner.Partitioner
 
 class KeyedStream<Incoming, Key, Outgoing>(
-    node: StreamBuilder.Node<Incoming, *, *, Pair<Key, Outgoing>>,
+    node: Node<Incoming, Pair<Key, Outgoing>>,
     batchSize: Int,
     parallelism: Int,
     partitioner: (Int) -> Partitioner
