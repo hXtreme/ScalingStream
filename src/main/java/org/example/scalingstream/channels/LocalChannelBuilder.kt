@@ -34,13 +34,13 @@ open class LocalChannelBuilder(
 
 class LocalChannelContext<Type>(
     name: String,
-    private val channelArgs: Map<ChannelArg, Any>
-) : DataChannelContext(name) {
+    channelArgs: Map<ChannelArg, Any>
+) : DataChannelContext(name, channelArgs) {
     private var queueDict: HashMap<String, Queue<Pair<Instant?, List<Type>?>>> =
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, Queue<Pair<Instant?, List<Type>?>>>
     private val maxQueueLength: Int = channelArgs.getOrDefault(ChannelArg.MAX_QUEUE_LEN, 0) as Int
 
-    override fun init() {
+    init {
         // TODO("Add size restriction")
         queueDict[name] = ArrayDeque<Pair<Instant?, List<Type>?>>()
     }
@@ -55,7 +55,7 @@ class LocalInputChannel<Type>(
     private val channelArgs: Map<ChannelArg, Any>
 ) : InputChannel<Type>(name) {
     private var queueDict: HashMap<String, Queue<Pair<Instant?, List<Type>?>>> =
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, Queue<Pair<Instant? ,List<Type>?>>>
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, Queue<Pair<Instant?, List<Type>?>>>
     private var q: Queue<Pair<Instant?, List<Type>?>>? = null
 
     override fun connect() {

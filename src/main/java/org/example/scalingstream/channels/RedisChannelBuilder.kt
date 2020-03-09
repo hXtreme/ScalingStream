@@ -38,7 +38,7 @@ class RedisChannelContext(
     private val db: Int = 0
 ) : DataChannelContext(name) {
 
-    override fun init() {
+    init {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
