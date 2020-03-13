@@ -22,4 +22,12 @@ class Reduce<KeyType, Type>(
     partitioner,
     operatorFn
 ) {
+    private val state: HashMap<KeyType, Type> = HashMap()
+
+    override fun processRecord(record: Pair<KeyType, Type>): Type {
+        val (k, v) = record
+        state.computeIfPresent(k, { _, v1 -> operatorFn(Pair(v1, v)) })
+        state.computeIfAbsent(k, { v })
+        return state[k]!!
+    }
 }

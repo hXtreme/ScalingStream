@@ -36,5 +36,9 @@ abstract class Operator<InputType, FnInp, FnOut, OutputType>(
     protected open fun processRecordBatch(recordBatch: List<InputType>) {
         recordBatch.map { record -> processRecord(record) }
     }
+
+    override fun toString(): String {
+        return "${operatorID}${idx}_"
+    }
 }
 
