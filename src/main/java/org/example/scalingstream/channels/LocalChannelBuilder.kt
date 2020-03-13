@@ -1,9 +1,11 @@
 package org.example.scalingstream.channels
 
+import de.jupf.staticlog.Log
 import java.time.Instant
 
 import java.util.Queue
-import java.util.ArrayDeque
+import java.util.concurrent.BlockingQueue
+import java.util.concurrent.LinkedBlockingQueue
 import kotlin.collections.HashMap
 
 
@@ -20,14 +22,17 @@ open class LocalChannelBuilder(
 
     override fun <Type> buildChannelContext(name: String): DataChannelContext {
         // For specialized typing inherit the class.
-        return LocalChannelContext<Any>(name, channelArgs)
+        Log.info("Building $type Channel Context: $name")
+        return LocalChannelContext<Type>(name, channelArgs)
     }
 
     override fun <Type> buildInputChannel(name: String): InputChannel<Type> {
+        Log.info("Building $type Input Channel: $name")
         return LocalInputChannel(name, channelArgs)
     }
 
     override fun <Type> buildOutputChannel(name: String): OutputChannel<Type> {
+        Log.info("Building $type Output Channel: $name")
         return LocalOutputChannel(name, channelArgs)
     }
 }
@@ -42,7 +47,7 @@ class LocalChannelContext<Type>(
 
     init {
         // TODO("Add size restriction")
-        queueDict[name] = ArrayDeque<Pair<Instant?, List<Type>?>>()
+        queueDict.putIfAbsent(name, LinkedBlockingQueue())
     }
 
     override fun destroy() {
@@ -54,16 +59,21 @@ class LocalInputChannel<Type>(
     name: String,
     private val channelArgs: Map<ChannelArg, Any>
 ) : InputChannel<Type>(name) {
-    private var queueDict: HashMap<String, Queue<Pair<Instant?, List<Type>?>>> =
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, Queue<Pair<Instant?, List<Type>?>>>
-    private var q: Queue<Pair<Instant?, List<Type>?>>? = null
+    private var queueDict: HashMap<String, BlockingQueue<Pair<Instant?, List<Type>?>>> =
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, BlockingQueue<Pair<Instant?, List<Type>?>>>
+    private var q: BlockingQueue<Pair<Instant?, List<Type>?>>? = null
 
     override fun connect() {
         q = queueDict[name] ?: error("No queue named $name to connect to.")
     }
 
+    override fun peek(): Pair<Instant?, List<Type>?>? {
+        return q?.peek()
+    }
+
     override fun get(): Pair<Instant?, List<Type>?> {
-        return q!!.first()
+        var data = q!!.take()
+        return data
     }
 }
 
@@ -71,16 +81,16 @@ class LocalOutputChannel<Type>(
     name: String,
     private val channelArgs: Map<ChannelArg, Any>
 ) : OutputChannel<Type>(name) {
-    private var queueDict: HashMap<String, Queue<Pair<Instant?, List<Type>?>>> =
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, Queue<Pair<Instant?, List<Type>?>>>
-    private var q: Queue<Pair<Instant?, List<Type>?>>? = null
+    private var queueDict: HashMap<String, BlockingQueue<Pair<Instant?, List<Type>?>>> =
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<String, BlockingQueue<Pair<Instant?, List<Type>?>>>
+    private var q: BlockingQueue<Pair<Instant?, List<Type>?>>? = null
 
     override fun connect() {
         q = queueDict[name] ?: error("No queue named $name to connect to.")
     }
 
-    override fun put(record: Pair<Instant?, List<Type>?>) {
-        q!!.add(record)
+    override fun put(recordBatch: Pair<Instant?, List<Type>?>) {
+        q!!.put(Pair(recordBatch.first, recordBatch.second?.toList()))
     }
 
     override fun flush() {
