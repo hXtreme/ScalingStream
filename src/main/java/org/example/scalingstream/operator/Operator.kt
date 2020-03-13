@@ -41,4 +41,3 @@ abstract class Operator<InputType, FnInp, FnOut, OutputType>(
         return "${operatorID}${idx}_"
     }
 }
-

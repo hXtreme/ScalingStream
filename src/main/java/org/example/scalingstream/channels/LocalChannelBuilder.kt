@@ -97,4 +97,3 @@ class LocalOutputChannel<Type>(
         // Do nothing
     }
 }
-

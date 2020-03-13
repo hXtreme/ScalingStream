@@ -95,4 +95,3 @@ open class Stream<Incoming, Outgoing>(
     }
 
 }
-
