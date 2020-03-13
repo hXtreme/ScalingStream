@@ -12,7 +12,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 class StreamContext(
-    executor: Executor,
+    private val executor: Executor,
     private val channelBuilder: ChannelBuilder,
     channelArgs: ChannelArgs,
     private val defaultBatchSize: Int = 1,
@@ -41,6 +41,6 @@ class StreamContext(
 
     fun run() {
         // TODO("run the master")
-        streamBuilder.run()
+        streamBuilder.run(executor)
     }
 }
