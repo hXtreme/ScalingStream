@@ -8,7 +8,7 @@ import org.example.scalingstream.operator.OutputBuffers
 import org.example.scalingstream.partitioner.Partitioner
 import org.jgrapht.graph.DefaultEdge
 import java.time.Instant
-import kotlin.properties.Delegates
+
 
 class ChannelManger<Type>() : DefaultEdge() {
     lateinit var channelBuilder: ChannelBuilder
