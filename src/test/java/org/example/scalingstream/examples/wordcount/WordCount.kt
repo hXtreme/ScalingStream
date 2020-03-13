@@ -42,7 +42,7 @@ class WordCount(private val sentences: SentenceSource, batchSize: Int = 4) {
 //        count.filter { (_, v) -> v > 50 }//.drop()
 //        count.filter { (_, v) -> v > 50 }.print()
 //        count.print()
-//        count.drop()
+        count.drop()
     }
 
     fun run() {
