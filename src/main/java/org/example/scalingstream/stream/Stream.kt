@@ -5,7 +5,7 @@ import org.example.scalingstream.partitioner.Partitioner
 import org.example.scalingstream.partitioner.RoundRobinPartitioner
 
 open class Stream<Incoming, Outgoing>(
-    val node: Node<Incoming, Outgoing>,
+    val node: Node<Incoming, *, *, Outgoing>,
     val batchSize: Int = 1,
     val parallelism: Int = 1,
     val partitioner: (Int) -> Partitioner = ::RoundRobinPartitioner
@@ -35,25 +35,26 @@ open class Stream<Incoming, Outgoing>(
     }
 
     fun inspect(
+        name: String = "sink",
         batchSize: Int = this.batchSize,
         parallelism: Int = this.parallelism,
         partitioner: (Int) -> Partitioner = this.partitioner,
         inspectOperator: (Outgoing) -> Unit
     ) {
-        addSimpleOperator("sink", ::Sink, batchSize, parallelism, partitioner, inspectOperator)
+        addSimpleOperator(name, ::Sink, batchSize, parallelism, partitioner, inspectOperator)
     }
 
     fun print(
         batchSize: Int = this.batchSize,
         parallelism: Int = this.parallelism,
         partitioner: (Int) -> Partitioner = this.partitioner
-    ): Unit = inspect(batchSize, parallelism, partitioner) { print(it) }
+    ): Unit = inspect("print", batchSize, parallelism, partitioner) { print("$it\n") }
 
     fun drop(
         batchSize: Int = this.batchSize,
         parallelism: Int = this.parallelism,
         partitioner: (Int) -> Partitioner = this.partitioner
-    ) : Unit = inspect(batchSize, parallelism, partitioner) { _ -> }
+    ): Unit = inspect("drop", batchSize, parallelism, partitioner) { _ -> }
 
     fun <OutputType> map(
         batchSize: Int = this.batchSize,
