@@ -10,19 +10,20 @@ internal class ChannelBuilderTest {
 
     @Test
     fun localChannelBuilderTest() {
-        val TEST_NAME = "${Companion.TEST_CLASS}->LocalBuilder"
+        val TEST_NAME = "${TEST_CLASS}->LocalBuilder"
 
         val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
+        @SuppressWarnings("unused")
         val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME:Builder", channelArgs)
         assertTrue(true)
     }
 
     @Test
     fun localChannelContextTest() {
-        val TEST_NAME = "${Companion.TEST_CLASS}->LocalContext"
+        val TEST_NAME = "${TEST_CLASS}->LocalContext"
 
         val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
@@ -30,13 +31,14 @@ internal class ChannelBuilderTest {
 
         val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
 
+        @SuppressWarnings("unused")
         val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
         assertTrue(true)
     }
 
     @Test
     fun localInputChannelTest() {
-        val TEST_NAME = "${Companion.TEST_CLASS}->LocalInput"
+        val TEST_NAME = "${TEST_CLASS}->LocalInput"
 
         val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
@@ -44,8 +46,9 @@ internal class ChannelBuilderTest {
 
         val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
 
-        val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+        localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
 
+        @SuppressWarnings("unused")
         val localInput = localChannelBuilder.buildInputChannel<Unit>("$TEST_NAME")
         assertTrue(true)
     }
@@ -60,8 +63,9 @@ internal class ChannelBuilderTest {
 
         val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
 
-        val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+        localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
 
+        @SuppressWarnings("unused")
         val localOutput = localChannelBuilder.buildOutputChannel<Unit>("$TEST_NAME")
         assertTrue(true)
     }
