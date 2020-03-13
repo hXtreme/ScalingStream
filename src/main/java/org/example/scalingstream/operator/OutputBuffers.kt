@@ -2,6 +2,7 @@ package org.example.scalingstream.operator
 
 import org.example.scalingstream.CONSTANTS
 import org.example.scalingstream.channels.OutputChannel
+import org.example.scalingstream.partitioner.Partitioner
 import java.time.Instant
 
 // TODO: Maybe move it to a different package
@@ -26,9 +27,15 @@ class OutputBuffers<Type> internal constructor(
         }
     }
 
+    fun append(recordBatch: Pair<Instant?, List<Type>?>, partitioner: Partitioner) {
+        val records: List<Type>? = recordBatch.second
+        timestamp = recordBatch.first
+        records!!.forEach { append(partitioner.assignPartition(it), it) }
+    }
+
 
     fun close() {
-        for (idx: Int in (0..numOut)) {
+        for (idx: Int in 0 until numOut) {
             if (outputBuffers[idx].isNotEmpty()) {
                 output[idx].put(Pair(timestamp, outputBuffers[idx])) // TODO: Fix the type here.
             }

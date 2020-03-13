@@ -59,6 +59,10 @@ class RedisInputChannel<Type>(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun peek(): Pair<Instant?, List<Type>?>? {
+        TODO("Not yet implemented")
+    }
+
     override fun get(): Pair<Instant?, List<Type>?> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -76,7 +80,7 @@ class RedisOutputChannel<Type>(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun put(record: Pair<Instant?, List<Type>?>) {
+    override fun put(recordBatch: Pair<Instant?, List<Type>?>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
