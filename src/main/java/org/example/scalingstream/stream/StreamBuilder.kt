@@ -1,15 +1,17 @@
 package org.example.scalingstream.stream
 
+import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.ChannelBuilder
+import org.example.scalingstream.executor.Executor
 import org.example.scalingstream.operator.OperatorConstructor
 import org.example.scalingstream.operator.SimpleOperatorConstructor
 import org.example.scalingstream.partitioner.Partitioner
-import org.jgrapht.graph.DefaultEdge
 import org.jgrapht.graph.DirectedAcyclicGraph
 
 class StreamBuilder(private val channelBuilder: ChannelBuilder) {
-    private lateinit var streamExecutionDAG: DirectedAcyclicGraph<Node<*, *>, ChannelManger>
-    private val roots: HashSet<Node<*, *>> = HashSet()
+    var streamExecutionDAG: DirectedAcyclicGraph<Node<*, *, *, *>, ChannelManger<*>> =
+        DirectedAcyclicGraph(ChannelManger::class.java)
+    private val roots: HashSet<Node<*, *, *, *>> = HashSet()
 
     fun <OutputType> addSource(
         name: String,
@@ -18,73 +20,58 @@ class StreamBuilder(private val channelBuilder: ChannelBuilder) {
         parallelism: Int,
         partitioner: (Int) -> Partitioner,
         operatorFn: (Unit) -> OutputType
-    ): Node<Unit, OutputType> {
-        val manager = Node(SimpleOperatorManager(name, operator, batchSize, parallelism, partitioner, operatorFn), this)
+    ): Node<Unit, Unit, OutputType, OutputType> {
+        Log.info("Add source:\t\t$name\t$parallelism")
+        val manager =
+            Node(
+                this,
+                name,
+                operator,
+                ChannelManger(channelBuilder, batchSize, partitioner),
+                batchSize,
+                parallelism,
+                partitioner,
+                operatorFn
+            )
         roots.add(manager)
         streamExecutionDAG.addVertex(manager)
         return manager
     }
 
     fun <InputType, FnIn, FnOut, OutputType> addOperator(
-        parent: Node<*, InputType>,
+        parent: Node<*, *, *, InputType>,
         name: String,
         operator: OperatorConstructor<InputType, FnIn, FnOut, OutputType>,
         batchSize: Int,
         parallelism: Int,
         partitioner: (Int) -> Partitioner,
         operatorFn: (FnIn) -> FnOut
-    ): Node<InputType, OutputType> {
+    ): Node<InputType, FnIn, FnOut, OutputType> {
+        Log.info("Add operator:\t$name\t\t$parallelism")
         if (!streamExecutionDAG.containsVertex(parent))
             error("The parent OperatorManager does not exist in the StreamExecutionDAG")
-        val manager = Node(OperatorManager(name, operator, batchSize, parallelism, partitioner, operatorFn), this)
-        streamExecutionDAG.addEdge(parent, manager)
-        return manager
+        val inChannelManger = ChannelManger<OutputType>(channelBuilder, batchSize, partitioner)
+        val operatorManager = Node(
+            this,
+            name,
+            operator,
+            inChannelManger,
+            batchSize,
+            parallelism,
+            partitioner,
+            operatorFn
+        )
+        streamExecutionDAG.addVertex(operatorManager)
+        streamExecutionDAG.addEdge(parent, operatorManager, inChannelManger)
+        return operatorManager
     }
 
-    fun run() {
+    fun run(executor: Executor) {
 
-    }
-}
-
-private typealias SimpleOperatorManager<InputType, OutputType> =
-        OperatorManager<InputType, InputType, OutputType, OutputType>
-
-class OperatorManager<InputType, FnIn, FnOut, OutputType>(
-    name: String,
-    operator: OperatorConstructor<InputType, FnIn, FnOut, OutputType>,
-    batchSize: Int,
-    parallelism: Int,
-    partitioner: (Int) -> Partitioner,
-    operatorFn: (FnIn) -> FnOut
-) {
-
-}
-
-class Node<InputType, OutputType>(
-    val value: OperatorManager<InputType, *, *, OutputType>,
-    private val streamBuilder: StreamBuilder
-) {
-
-    fun <FnIn, FnOut, Type> addOperator(
-        name: String,
-        operator: OperatorConstructor<OutputType, FnIn, FnOut, Type>,
-        batchSize: Int,
-        parallelism: Int,
-        partitioner: (Int) -> Partitioner,
-        operatorFn: (FnIn) -> FnOut
-    ): Node<OutputType, Type> {
-        return streamBuilder.addOperator(this, name, operator, batchSize, parallelism, partitioner, operatorFn)
-    }
-}
-
-class ChannelManger(private val source: Node<*, *>, private val target: Node<*, *>) :
-    DefaultEdge() {
-
-    override fun getTarget(): Any {
-        return target
-    }
-
-    override fun getSource(): Any {
-        return source
+        // TODO("Run")
+        // streamExecutionDAG.edgeSet().forEach { it.build() } // Initialize Channels for running
+        Log.info("Starting Stream execution")
+        executor.exec(streamExecutionDAG.vertexSet())
+        streamExecutionDAG.edgeSet().forEach { it.destroy() }
     }
 }
