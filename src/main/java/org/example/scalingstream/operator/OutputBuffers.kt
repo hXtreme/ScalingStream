@@ -13,7 +13,7 @@ class OutputBuffers<Type> internal constructor(
 ) {
 
     private val numOut: Int = output.size
-    private val outputBuffers: List<MutableList<Type>> = (0..numOut).map { mutableListOf<Type>() }
+    private val outputBuffers: List<MutableList<Type>> = List(numOut) { mutableListOf<Type>() }
 
     var timestamp: Instant? = null
 
