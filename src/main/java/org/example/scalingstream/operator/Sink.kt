@@ -33,6 +33,8 @@ class Sink<InputType>(
     private var numDoneMarkers: Int = 0
 
     override fun run() {
+        Log.info("Running ${operatorID}${idx}")
+        Log.info("$operatorID --> $operatorID --> ${outOperatorIDs.joinToString(prefix = "[", postfix = "]")}")
         input.connect()
         var done = false
 
@@ -44,12 +46,13 @@ class Sink<InputType>(
                 done = numDoneMarkers == upstreamCount
             } else {
                 processRecordBatch(recordBatch)
-                numProcessed++
+                numProcessed += recordBatch.size
             }
         }
+        Log.info("Processed $numProcessed records. Quitting $operatorID${idx}_")
     }
 
-    override fun processRecord(record: InputType) {
-        error("Unused function: shouldn't have been called")
+    override fun processRecordBatch(recordBatch: List<InputType>) {
+        recordBatch.forEach { operatorFn(it) }
     }
 }
