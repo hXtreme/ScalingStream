@@ -1,12 +1,9 @@
 package org.example.scalingstream.channels;
 
 public abstract class DataChannel {
-    String name;
+  String name;
 
-    DataChannel(String name) {
-        this.name = name;
-    }
+  DataChannel(String name) { this.name = name; }
 
-    abstract public void connect();
+  abstract public void connect();
 }
-
