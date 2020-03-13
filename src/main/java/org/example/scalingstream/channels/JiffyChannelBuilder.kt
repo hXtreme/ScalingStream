@@ -90,5 +90,3 @@ class JiffyOutputChannel<Type>(
         // Do nothing
     }
 }
-
-

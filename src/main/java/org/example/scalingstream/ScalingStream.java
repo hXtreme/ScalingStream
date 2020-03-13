@@ -1,4 +1,3 @@
 package org.example.scalingstream;
 
-public class ScalingStream {
-}
+public class ScalingStream {}
