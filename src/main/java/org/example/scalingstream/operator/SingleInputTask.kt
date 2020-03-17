@@ -1,8 +1,8 @@
 package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.control.InputChannelManager
-import org.example.scalingstream.control.OutputChannelManager
+import org.example.scalingstream.control.channel.InputChannelManager
+import org.example.scalingstream.control.channel.OutputChannelManager
 
 typealias SingleInputSimpleTask<InputType, OutputType> =
         SingleInputTask<InputType, InputType, OutputType, OutputType>

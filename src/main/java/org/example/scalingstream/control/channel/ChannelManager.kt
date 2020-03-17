@@ -1,4 +1,4 @@
-package org.example.scalingstream.control
+package org.example.scalingstream.control.channel
 
 interface ChannelManager<Type> {
     fun connect()

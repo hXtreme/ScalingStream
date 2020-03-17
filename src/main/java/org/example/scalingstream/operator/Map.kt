@@ -1,7 +1,7 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.control.InputChannelManager
-import org.example.scalingstream.control.OutputChannelManager
+import org.example.scalingstream.control.channel.InputChannelManager
+import org.example.scalingstream.control.channel.OutputChannelManager
 
 class Map<InputType, OutputType>(
     taskID: Int,

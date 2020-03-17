@@ -1,7 +1,7 @@
 package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.control.InputChannelManager
+import org.example.scalingstream.control.channel.InputChannelManager
 import java.time.Duration
 import java.time.Instant
 

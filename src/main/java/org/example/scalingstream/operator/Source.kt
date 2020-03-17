@@ -2,7 +2,7 @@ package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
 import org.example.scalingstream.CONSTANTS
-import org.example.scalingstream.control.OutputChannelManager
+import org.example.scalingstream.control.channel.OutputChannelManager
 import java.time.Instant
 
 
