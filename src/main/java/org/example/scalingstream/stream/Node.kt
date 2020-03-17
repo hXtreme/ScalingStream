@@ -1,15 +1,17 @@
 package org.example.scalingstream.stream
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.operator.Operator
-import org.example.scalingstream.operator.OperatorConstructor
+import org.example.scalingstream.control.channel.InputChannelManager
+import org.example.scalingstream.control.channel.OutputChannelManager
+import org.example.scalingstream.operator.Task
+import org.example.scalingstream.operator.TaskConstructor
 import org.example.scalingstream.partitioner.Partitioner
 
 class Node<InputType, FnIn, FnOut, OutputType>(
     private val streamBuilder: StreamBuilder,
     private val name: String,
-    private val operator: OperatorConstructor<InputType, FnIn, FnOut, OutputType>,
-    private val outChannelManger: ChannelManger<OutputType>,
+    private val task: TaskConstructor<InputType, FnIn, FnOut, OutputType>,
+    private val outChannelManager: ChannelManager<OutputType>,
     private val batchSize: Int,
     private val parallelism: Int,
     private val partitioner: (Int) -> Partitioner,
@@ -18,13 +20,13 @@ class Node<InputType, FnIn, FnOut, OutputType>(
 
     fun <FnIn, FnOut, Type> addOperator(
         name: String,
-        operator: OperatorConstructor<OutputType, FnIn, FnOut, Type>,
+        task: TaskConstructor<OutputType, FnIn, FnOut, Type>,
         batchSize: Int,
         parallelism: Int,
         partitioner: (Int) -> Partitioner,
         operatorFn: (FnIn) -> FnOut
     ): Node<OutputType, FnIn, FnOut, Type> {
-        return streamBuilder.addOperator(this, name, operator, batchSize, parallelism, partitioner, operatorFn)
+        return streamBuilder.addOperator(this, name, task, batchSize, parallelism, partitioner, operatorFn)
     }
 
     private val uID = StaticVars.uID++
@@ -42,30 +44,23 @@ class Node<InputType, FnIn, FnOut, OutputType>(
         tasks.forEach { it.join() }
     }
 
-    fun build(id: Int): Operator<InputType, *, *, OutputType> {
+    fun build(id: Int): Task<InputType, *, *, OutputType> {
         val upstreamCount= fun() : Int {
             return streamBuilder.streamExecutionDAG.incomingEdgesOf(this).map { it.src.parallelism }.sum()
         }
 
-        val outOperatorIDs = fun(): List<String> {
-            return streamBuilder.streamExecutionDAG.outgoingEdgesOf(this).map { it.dst.operatorID }
+        val inChannelManagers = fun(): List<InputChannelManager<InputType>> {
+            TODO("not implemented")
         }
 
-        outOperatorIDs().forEach { outChannelManger.build(it) }
+        val outChannelManagers = fun(): List<OutputChannelManager<OutputType>> {
+            TODO("not implemented")
+        }
 
         // TODO("Operators shouldn't need outOperatorIDs, because in our case operator is actually just a task")
         // TODO("Operators shouldn't keep upstream count as val, we want to change it dynamically")
         // TODO("Potential write before read with parallelism, use Sentinel value instead to mitigate this.")
-        return operator(
-            id,
-            operatorID,
-            outOperatorIDs(),
-            upstreamCount(),
-            outChannelManger.build(operatorID),
-            batchSize,
-            partitioner(parallelism),
-            operatorFn
-        )
+        return task(id, operatorID, inChannelManagers(), outChannelManagers(), operatorFn)
     }
 
     companion object StaticVars {
@@ -78,10 +73,10 @@ class Node<InputType, FnIn, FnOut, OutputType>(
     }
 
     override fun equals(other: Any?): Boolean {
-        return other is Node<*, *, *, *> && (toString() == other.toString() && operator.toString() == other.operator.toString())
+        return other is Node<*, *, *, *> && (toString() == other.toString() && task.toString() == other.task.toString())
     }
 
     override fun hashCode(): Int {
-        return (toString() + operator.toString()).hashCode()
+        return (toString() + task.toString()).hashCode()
     }
 }

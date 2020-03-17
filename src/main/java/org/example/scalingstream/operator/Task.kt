@@ -1,14 +1,12 @@
 package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.control.InputChannelManager
-import org.example.scalingstream.control.OutputChannelManager
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.channel.InputChannelManager
+import org.example.scalingstream.control.channel.OutputChannelManager
 
 
 typealias TaskConstructor<InputType, FnInp, FnOut, OutputType> =
-            (Int, String, List<String>, Int, ChannelBuilder, Int, Partitioner, (FnInp) -> FnOut)
+            (Int, String, List<InputChannelManager<InputType>>, List<OutputChannelManager<OutputType>>, (FnInp) -> FnOut)
         -> Task<InputType, FnInp, FnOut, OutputType>
 
 typealias SimpleTask<InputType, OutputType> =
