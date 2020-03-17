@@ -1,6 +1,9 @@
 package org.example.scalingstream.operator
 
+import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.ChannelBuilder
+import org.example.scalingstream.control.InputChannelManager
+import org.example.scalingstream.control.OutputChannelManager
 import org.example.scalingstream.partitioner.Partitioner
 
 
@@ -17,27 +20,41 @@ typealias SimpleTaskConstructor<InputType, OutputType> =
 abstract class Task<InputType, FnInp, FnOut, OutputType>(
     protected val taskID: Int,
     protected val operatorID: String,
-    protected val outOperatorIDs: List<String>,
-    protected val upstreamCount: Int,
-    protected val channelBuilder: ChannelBuilder,
-    protected val batchSize: Int,
-    protected val partitioner: Partitioner,
+    protected val inputChannelManagerList: List<InputChannelManager<InputType>>,
+    protected val outputChannelManagerList: List<OutputChannelManager<OutputType>>,
     protected val operatorFn: (FnInp) -> FnOut
 ) {
-    protected val numOut: Int = outOperatorIDs.size
-    protected var numProcessed: Int = 0
+    protected val tag = "$operatorID$taskID"
+    init {
+        Log.info("$inputChannelManagerList\t-->\t$operatorID\t-->\t$outputChannelManagerList", tag)
+    }
 
     abstract fun run(): Any
 
-    open fun processRecord(record: InputType): OutputType {
-        error("Needs to be overridden")
+    protected abstract fun processRecord(record: InputType): OutputType
+
+    protected open fun processBatch(batch: List<InputType>) {
+        val processed = batch.map { record -> processRecord(record) }
+        outputChannelManagerList.forEach { it.put(processed) }
+        numProduced += processed.size
     }
 
-    protected open fun processRecordBatch(recordBatch: List<InputType>) {
-        recordBatch.map { record -> processRecord(record) }
+    protected val inputChannelManagers = sequence {
+        var current = 0
+        while (true) {
+            current %= inputChannelManagerList.size
+            yield(inputChannelManagerList[current])
+            current++
+        }
     }
+
+    var numConsumed: Int = 0
+        protected set
+
+    var numProduced: Int = 0
+        protected set
 
     override fun toString(): String {
-        return "${operatorID}${idx}_"
+        return "${operatorID}${taskID}"
     }
 }

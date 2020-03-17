@@ -1,58 +1,40 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.CONSTANTS
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.channels.InputChannel
-import org.example.scalingstream.partitioner.Partitioner
-
 import de.jupf.staticlog.Log
+import org.example.scalingstream.control.InputChannelManager
 import java.time.Duration
 import java.time.Instant
 
 class Sink<InputType>(
-    idx: Int,
+    taskID: Int,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    inputChannelManagerList: List<InputChannelManager<InputType>>,
     operatorFn: (InputType) -> Unit
-) : SimpleOperator<InputType, Unit>(
-    idx,
-    operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
-    operatorFn
-) {
-
-    private val input: InputChannel<InputType> = channelBuilder.buildInputChannel(operatorID)
-    private var numDoneMarkers: Int = 0
+) : SimpleTask<InputType, Unit>(taskID, operatorID, inputChannelManagerList, emptyList(), operatorFn) {
 
     override fun run() {
-        Log.info("Running ${operatorID}${idx}")
-        Log.info("$operatorID --> $operatorID --> ${outOperatorIDs.joinToString(prefix = "[", postfix = "]")}")
-        input.connect()
-        var done = false
+        Log.info("Running sink task", tag)
+        inputChannelManagerList.forEach { it.connect() }
 
-        while (!done) {
-            val (timestamp, recordBatch) = input.get()
-            timestamp?.let { Log.info("Latency: ${Duration.between(timestamp, Instant.now())}") }
-            if (recordBatch == CONSTANTS.DONE_MARKER) {
-                numDoneMarkers++
-                done = numDoneMarkers == upstreamCount
-            } else {
-                processRecordBatch(recordBatch)
-                numProcessed += recordBatch.size
-            }
+        while (inputChannelManagerList.any { !it.closedAndEmpty }) {
+            val (timestamp, batch) =
+                (inputChannelManagers.take(inputChannelManagerList.size).find { it.peek() != null }?.get())
+                    ?: inputChannelManagers.first().get()
+
+            timestamp?.let { Log.debug("Latency: ${Duration.between(timestamp, Instant.now())}", tag) }
+            processBatch(batch)
+            numConsumed += batch.size
         }
-        Log.info("Processed $numProcessed records. Quitting $operatorID${idx}_")
+        Log.debug("Processed $numConsumed records.", tag)
+        Log.info("Closing buffers and quitting.", tag)
+        inputChannelManagerList.forEach { it.close() }
     }
 
-    override fun processRecordBatch(recordBatch: List<InputType>) {
-        recordBatch.forEach { operatorFn(it) }
+    override fun processBatch(batch: List<InputType>) {
+        batch.forEach { operatorFn(it) }
+    }
+
+    override fun processRecord(record: InputType) {
+        error("Unused function, should not have been called.")
     }
 }

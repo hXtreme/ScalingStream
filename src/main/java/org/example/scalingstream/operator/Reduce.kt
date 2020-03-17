@@ -1,25 +1,19 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.InputChannelManager
+import org.example.scalingstream.control.OutputChannelManager
 
 class Reduce<KeyType, Type>(
     taskID: Int,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    inputChannelManagers: List<InputChannelManager<Pair<KeyType, Type>>>,
+    outputChannelManagers: List<OutputChannelManager<Type>>,
     operatorFn: (Pair<Type, Type>) -> Type
 ) : SingleInputTask<Pair<KeyType, Type>, Pair<Type, Type>, Type, Type>(
     taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    inputChannelManagers,
+    outputChannelManagers,
     operatorFn
 ) {
     private val state: HashMap<KeyType, Type> = HashMap()

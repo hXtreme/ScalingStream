@@ -1,9 +1,8 @@
 package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.CONSTANTS
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.InputChannelManager
+import org.example.scalingstream.control.OutputChannelManager
 
 typealias SingleInputSimpleTask<InputType, OutputType> =
         SingleInputTask<InputType, InputType, OutputType, OutputType>
@@ -11,61 +10,34 @@ typealias SingleInputSimpleTask<InputType, OutputType> =
 abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
     taskID: Int,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    inputChannelManagers: List<InputChannelManager<InputType>>,
+    outputChannelManagers: List<OutputChannelManager<OutputType>>,
     operatorFn: (FnInp) -> FnOut
 ) : Task<InputType, FnInp, FnOut, OutputType>(
     taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    inputChannelManagers,
+    outputChannelManagers,
     operatorFn
 ) {
-    private val inputChannel = channelBuilder.buildInputChannel<InputType>(operatorID)
-    private val outputChannels = outOperatorIDs
-        .map { outOperatorID -> channelBuilder.buildOutputChannel<OutputType>(outOperatorID) }
-
-    protected val outputBuffers = OutputBuffers<OutputType>(batchSize, outputChannels)
-    private var numDoneMarkers = 0
-
-    // protected val state: HashMap<Any, Any> by lazy { HashMap<Any, Any>() }
-
     override fun run() {
-        Log.info("Running $idx instance of $operatorID")
-        Log.info("$operatorID\t-->\t$operatorID\t-->\t${outOperatorIDs.joinToString(prefix="[", postfix="]" )}")
-        inputChannel.connect()
-        outputChannels.forEach { it.connect() }
-        var done = false
+        Log.info("Running task.", tag)
+        inputChannelManagerList.forEach { it.connect() }
+        outputChannelManagerList.forEach { it.connect() }
 
-        while (!done) {
-            val (timestamp, recordBatch) = inputChannel.get()
-            outputBuffers.timestamp = timestamp
-            if (recordBatch == CONSTANTS.DONE_MARKER) {
-                numDoneMarkers++
-                done = numDoneMarkers == upstreamCount
-            } else {
-                processRecordBatch(recordBatch)
-                numProcessed += recordBatch.size
-            }
+        while (inputChannelManagerList.any { !it.closedAndEmpty }) {
+            val (timestamp, batch) =
+                (inputChannelManagers.take(inputChannelManagerList.size).find { it.peek() != null }?.get())
+                    ?: inputChannelManagers.first().get()
+
+            outputChannelManagerList.forEach { it.timestamp = timestamp }
+            processBatch(batch)
+            numConsumed += batch.size
         }
-        Log.info("Processed $numProcessed records. Closing buffers and quitting $operatorID${idx}_")
-        outputBuffers.close()
-    }
 
-    override fun processRecordBatch(recordBatch: List<InputType>) {
-            partitioner.partitionBatch(
-                outputBuffers,
-                recordBatch.map { record -> processRecord(record) }
-            ) // TODO("Want to handle this via channel manager")
-        /** TODO
-         * Want the following interface:
-         * channelManagers.forEach { it.put(recordBatch.map{record -> processRecord(record)}) }
-         */
+        Log.debug("Processed $numConsumed records.", tag)
+        Log.info("Closing buffers and quitting.", tag)
+        inputChannelManagerList.forEach { it.close() }
+        outputChannelManagerList.forEach { it.close() }
     }
 }
