@@ -4,7 +4,7 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 class Map<InputType, OutputType>(
-    idx: Int,
+    taskID: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
     upstreamCount: Int,
@@ -12,8 +12,8 @@ class Map<InputType, OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> OutputType
-) : SingleInputSimpleOperator<InputType, OutputType>(
-    idx,
+) : SingleInputSimpleTask<InputType, OutputType>(
+    taskID,
     operatorID,
     outOperatorIDs,
     upstreamCount,

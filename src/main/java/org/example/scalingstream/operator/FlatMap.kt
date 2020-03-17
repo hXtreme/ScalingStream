@@ -4,7 +4,7 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 class FlatMap<InputType, OutputType>(
-    idx: Int,
+    taskID: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
     upstreamCount: Int,
@@ -12,8 +12,8 @@ class FlatMap<InputType, OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> Iterable<OutputType>
-) : SingleInputOperator<InputType, InputType, Iterable<OutputType>, OutputType>(
-    idx,
+) : SingleInputTask<InputType, InputType, Iterable<OutputType>, OutputType>(
+    taskID,
     operatorID,
     outOperatorIDs,
     upstreamCount,

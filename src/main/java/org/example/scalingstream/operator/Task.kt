@@ -4,18 +4,18 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 
-typealias OperatorConstructor<InputType, FnInp, FnOut, OutputType> =
+typealias TaskConstructor<InputType, FnInp, FnOut, OutputType> =
             (Int, String, List<String>, Int, ChannelBuilder, Int, Partitioner, (FnInp) -> FnOut)
-        -> Operator<InputType, FnInp, FnOut, OutputType>
+        -> Task<InputType, FnInp, FnOut, OutputType>
 
-typealias SimpleOperator<InputType, OutputType> =
-        Operator<InputType, InputType, OutputType, OutputType>
+typealias SimpleTask<InputType, OutputType> =
+        Task<InputType, InputType, OutputType, OutputType>
 
-typealias SimpleOperatorConstructor<InputType, OutputType> =
-        OperatorConstructor<InputType, InputType, OutputType, OutputType>
+typealias SimpleTaskConstructor<InputType, OutputType> =
+        TaskConstructor<InputType, InputType, OutputType, OutputType>
 
-abstract class Operator<InputType, FnInp, FnOut, OutputType>(
-    protected val idx: Int,
+abstract class Task<InputType, FnInp, FnOut, OutputType>(
+    protected val taskID: Int,
     protected val operatorID: String,
     protected val outOperatorIDs: List<String>,
     protected val upstreamCount: Int,

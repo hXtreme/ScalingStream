@@ -3,8 +3,8 @@ package org.example.scalingstream.stream
 import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.executor.Executor
-import org.example.scalingstream.operator.OperatorConstructor
-import org.example.scalingstream.operator.SimpleOperatorConstructor
+import org.example.scalingstream.operator.TaskConstructor
+import org.example.scalingstream.operator.SimpleTaskConstructor
 import org.example.scalingstream.partitioner.Partitioner
 import org.jgrapht.graph.DirectedAcyclicGraph
 
@@ -15,7 +15,7 @@ class StreamBuilder(private val channelBuilder: ChannelBuilder) {
 
     fun <OutputType> addSource(
         name: String,
-        operator: SimpleOperatorConstructor<Unit, OutputType>,
+        task: SimpleTaskConstructor<Unit, OutputType>,
         batchSize: Int,
         parallelism: Int,
         partitioner: (Int) -> Partitioner,
@@ -26,7 +26,7 @@ class StreamBuilder(private val channelBuilder: ChannelBuilder) {
             Node(
                 this,
                 name,
-                operator,
+                task,
                 ChannelManger(channelBuilder, batchSize, partitioner),
                 batchSize,
                 parallelism,
@@ -41,7 +41,7 @@ class StreamBuilder(private val channelBuilder: ChannelBuilder) {
     fun <InputType, FnIn, FnOut, OutputType> addOperator(
         parent: Node<*, *, *, InputType>,
         name: String,
-        operator: OperatorConstructor<InputType, FnIn, FnOut, OutputType>,
+        task: TaskConstructor<InputType, FnIn, FnOut, OutputType>,
         batchSize: Int,
         parallelism: Int,
         partitioner: (Int) -> Partitioner,
@@ -54,7 +54,7 @@ class StreamBuilder(private val channelBuilder: ChannelBuilder) {
         val operatorManager = Node(
             this,
             name,
-            operator,
+            task,
             inChannelManger,
             batchSize,
             parallelism,

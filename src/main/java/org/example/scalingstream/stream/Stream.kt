@@ -12,26 +12,26 @@ open class Stream<Incoming, Outgoing>(
 ) {
     protected fun <FnInp, FnOut, OutputType> addOperator(
         name: String,
-        operatorConstructor: OperatorConstructor<Outgoing, FnInp, FnOut, OutputType>,
+        taskConstructor: TaskConstructor<Outgoing, FnInp, FnOut, OutputType>,
         batchSize: Int = this.batchSize,
         parallelism: Int = this.parallelism,
         partitioner: (Int) -> Partitioner = this.partitioner,
         operatorFn: (FnInp) -> FnOut
     ): Stream<Outgoing, OutputType> {
-        val dagBuilder = node.addOperator(name, operatorConstructor, batchSize, parallelism, partitioner, operatorFn)
+        val dagBuilder = node.addOperator(name, taskConstructor, batchSize, parallelism, partitioner, operatorFn)
 
         return Stream(dagBuilder, batchSize, parallelism, partitioner)
     }
 
     protected fun <OutputType> addSimpleOperator(
         name: String,
-        operatorConstructor: SimpleOperatorConstructor<Outgoing, OutputType>,
+        taskConstructor: SimpleTaskConstructor<Outgoing, OutputType>,
         batchSize: Int = this.batchSize,
         parallelism: Int = this.parallelism,
         partitioner: (Int) -> Partitioner = this.partitioner,
         operatorFn: (Outgoing) -> OutputType
     ): Stream<Outgoing, OutputType> {
-        return addOperator(name, operatorConstructor, batchSize, parallelism, partitioner, operatorFn)
+        return addOperator(name, taskConstructor, batchSize, parallelism, partitioner, operatorFn)
     }
 
     fun inspect(

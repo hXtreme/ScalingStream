@@ -4,7 +4,7 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 class Filter<InputType>(
-    idx: Int,
+    taskID: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
     upstreamCount: Int,
@@ -12,8 +12,8 @@ class Filter<InputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> Boolean
-) : SingleInputOperator<InputType, InputType, Boolean, InputType>(
-    idx,
+) : SingleInputTask<InputType, InputType, Boolean, InputType>(
+    taskID,
     operatorID,
     outOperatorIDs,
     upstreamCount,

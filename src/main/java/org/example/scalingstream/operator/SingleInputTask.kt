@@ -5,11 +5,11 @@ import org.example.scalingstream.CONSTANTS
 import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
-typealias SingleInputSimpleOperator<InputType, OutputType> =
-        SingleInputOperator<InputType, InputType, OutputType, OutputType>
+typealias SingleInputSimpleTask<InputType, OutputType> =
+        SingleInputTask<InputType, InputType, OutputType, OutputType>
 
-abstract class SingleInputOperator<InputType, FnInp, FnOut, OutputType>(
-    idx: Int,
+abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
+    taskID: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
     upstreamCount: Int,
@@ -17,8 +17,8 @@ abstract class SingleInputOperator<InputType, FnInp, FnOut, OutputType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (FnInp) -> FnOut
-) : Operator<InputType, FnInp, FnOut, OutputType>(
-    idx,
+) : Task<InputType, FnInp, FnOut, OutputType>(
+    taskID,
     operatorID,
     outOperatorIDs,
     upstreamCount,

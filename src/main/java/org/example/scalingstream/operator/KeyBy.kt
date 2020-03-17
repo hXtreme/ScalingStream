@@ -4,7 +4,7 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 class KeyBy<InputType, KeyType>(
-    idx: Int,
+    taskID: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
     upstreamCount: Int,
@@ -12,8 +12,8 @@ class KeyBy<InputType, KeyType>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (InputType) -> KeyType
-) : SingleInputOperator<InputType, InputType, KeyType, Pair<KeyType, InputType>>(
-    idx,
+) : SingleInputTask<InputType, InputType, KeyType, Pair<KeyType, InputType>>(
+    taskID,
     operatorID,
     outOperatorIDs,
     upstreamCount,

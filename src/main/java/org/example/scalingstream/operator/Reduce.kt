@@ -4,7 +4,7 @@ import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.partitioner.Partitioner
 
 class Reduce<KeyType, Type>(
-    idx: Int,
+    taskID: Int,
     operatorID: String,
     outOperatorIDs: List<String>,
     upstreamCount: Int,
@@ -12,8 +12,8 @@ class Reduce<KeyType, Type>(
     batchSize: Int,
     partitioner: Partitioner,
     operatorFn: (Pair<Type, Type>) -> Type
-) : SingleInputOperator<Pair<KeyType, Type>, Pair<Type, Type>, Type, Type>(
-    idx,
+) : SingleInputTask<Pair<KeyType, Type>, Pair<Type, Type>, Type, Type>(
+    taskID,
     operatorID,
     outOperatorIDs,
     upstreamCount,
