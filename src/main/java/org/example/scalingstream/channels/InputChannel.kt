@@ -1,9 +1,10 @@
 package org.example.scalingstream.channels
 
-import java.time.Instant
+abstract class InputChannel<Type>(id: ChannelID) : DataChannel(id) {
+    abstract fun peek(): Record<Type>?
 
-abstract class InputChannel<Type>(name: String?) : DataChannel(name) {
-    abstract fun peek(): Pair<Instant?, List<Type>?>?
-
-    abstract fun get(): Pair<Instant?, List<Type>?>
+    abstract fun get(): Record<Type>
+    fun close() {
+        TODO("Not yet implemented")
+    }
 }
