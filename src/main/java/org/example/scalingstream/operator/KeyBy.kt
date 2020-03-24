@@ -1,19 +1,20 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.control.channel.InputChannelManager
-import org.example.scalingstream.control.channel.OutputChannelManager
+import org.example.scalingstream.control.channel.ChannelReadManager
+import org.example.scalingstream.control.channel.ChannelWriteManager
+import java.util.*
 
 class KeyBy<InputType, KeyType>(
-    taskID: Int,
+    taskID: UUID,
     operatorID: String,
-    inputChannelManagers: List<InputChannelManager<InputType>>,
-    outputChannelManagers: List<OutputChannelManager<Pair<KeyType, InputType>>>,
+    channelReadManagerList: List<ChannelReadManager<InputType>>,
+    channelWriteManagerList: List<ChannelWriteManager<Pair<KeyType, InputType>>>,
     operatorFn: (InputType) -> KeyType
 ) : SingleInputTask<InputType, InputType, KeyType, Pair<KeyType, InputType>>(
     taskID,
     operatorID,
-    inputChannelManagers,
-    outputChannelManagers,
+    channelReadManagerList,
+    channelWriteManagerList,
     operatorFn
 ) {
     override fun processRecord(record: InputType): Pair<KeyType, InputType> {

@@ -1,12 +1,13 @@
 package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.control.channel.InputChannelManager
-import org.example.scalingstream.control.channel.OutputChannelManager
+import org.example.scalingstream.control.channel.ChannelReadManager
+import org.example.scalingstream.control.channel.ChannelWriteManager
+import java.util.*
 
 
 typealias TaskConstructor<InputType, FnInp, FnOut, OutputType> =
-            (Int, String, List<InputChannelManager<InputType>>, List<OutputChannelManager<OutputType>>, (FnInp) -> FnOut)
+            (UUID, String, List<ChannelReadManager<InputType>>, List<ChannelWriteManager<OutputType>>, (FnInp) -> FnOut)
         -> Task<InputType, FnInp, FnOut, OutputType>
 
 typealias SimpleTask<InputType, OutputType> =
@@ -16,15 +17,16 @@ typealias SimpleTaskConstructor<InputType, OutputType> =
         TaskConstructor<InputType, InputType, OutputType, OutputType>
 
 abstract class Task<InputType, FnInp, FnOut, OutputType>(
-    protected val taskID: Int,
+    protected val taskID: UUID,
     protected val operatorID: String,
-    protected val inputChannelManagerList: List<InputChannelManager<InputType>>,
-    protected val outputChannelManagerList: List<OutputChannelManager<OutputType>>,
+    val channelReadManagerList: List<ChannelReadManager<InputType>>,
+    val channelWriteManagerList: List<ChannelWriteManager<OutputType>>,
     protected val operatorFn: (FnInp) -> FnOut
 ) {
-    protected val tag = "$operatorID$taskID"
+    val name = "$operatorID$taskID"
+
     init {
-        Log.info("$inputChannelManagerList\t-->\t$operatorID\t-->\t$outputChannelManagerList", tag)
+        Log.info("$channelReadManagerList\t-->\t$operatorID\t-->\t$channelWriteManagerList", name)
     }
 
     abstract fun run(): Any
@@ -33,15 +35,15 @@ abstract class Task<InputType, FnInp, FnOut, OutputType>(
 
     protected open fun processBatch(batch: List<InputType>) {
         val processed = batch.map { record -> processRecord(record) }
-        outputChannelManagerList.forEach { it.put(processed) }
+        channelWriteManagerList.forEach { it.put(processed) }
         numProduced += processed.size
     }
 
-    protected val inputChannelManagers = sequence {
+    protected val inputChannelManagers = iterator {
         var current = 0
         while (true) {
-            current %= inputChannelManagerList.size
-            yield(inputChannelManagerList[current])
+            current %= channelReadManagerList.size
+            yield(channelReadManagerList[current])
             current++
         }
     }
@@ -53,6 +55,6 @@ abstract class Task<InputType, FnInp, FnOut, OutputType>(
         protected set
 
     override fun toString(): String {
-        return "${operatorID}${taskID}"
+        return "${operatorID}${taskID.toString().substring(0, 10)}"
     }
 }
