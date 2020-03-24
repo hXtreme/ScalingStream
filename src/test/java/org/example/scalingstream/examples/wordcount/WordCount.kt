@@ -23,11 +23,12 @@ class WordCount(private val sentences: SentenceSource, batchSize: Int = 4) {
 
     init {
         val executor: Executor = LocalExecutor(NAME)
+        val id = Pair(UUID.randomUUID(), UUID.randomUUID())
         val channelArgs = HashMap<ChannelArg, Any>()
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 10
 
-        val channelBuilder: ChannelBuilder = LocalChannelBuilder(NAME, channelArgs)
+        val channelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
         context = StreamContext(executor, channelBuilder, channelArgs, batchSize, ::HashPartitioner)
 
         words = context.createStream(NAME) { sentences.generator() }

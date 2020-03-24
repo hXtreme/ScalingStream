@@ -2,7 +2,6 @@ package org.example.scalingstream.examples.wordcount
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
-import org.example.scalingstream.CONSTANTS
 import org.example.scalingstream.StreamContext
 import org.example.scalingstream.channels.ChannelArg
 import org.example.scalingstream.channels.ChannelBuilder
@@ -39,15 +38,15 @@ class SentenceSource(
 
 fun main(args: Array<String>) {
     Log.logLevel = LogLevel.ERROR
+    val id = Pair(UUID.randomUUID(), UUID.randomUUID())
     val file = File(args.getOrElse(0) { "./README.md" })
     val sentences = SentenceSource(file, 20, 2)
-
     val executor: Executor = LocalExecutor(NAME)
     val channelArgs = HashMap<ChannelArg, Any>()
     channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
     channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-    val channelBuilder: ChannelBuilder = LocalChannelBuilder(NAME, channelArgs)
+    val channelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
     val context = StreamContext(executor, channelBuilder, channelArgs)
 
     context.createStream(NAME) { sentences.generator() }.print()
