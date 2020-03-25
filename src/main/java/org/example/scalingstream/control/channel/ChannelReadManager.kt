@@ -2,8 +2,8 @@ package org.example.scalingstream.control.channel
 
 import org.example.scalingstream.channels.ChannelID
 import org.example.scalingstream.channels.InputChannel
+import org.example.scalingstream.channels.Record
 import org.example.scalingstream.extensions.*
-import java.time.Instant
 
 abstract class ChannelReadManager<Type> : ChannelEndPointManager<Type> {
     private val inputChannelMap: MutableMap<ChannelID, InputChannel<Type>> = mutableMapOf()
@@ -24,8 +24,10 @@ abstract class ChannelReadManager<Type> : ChannelEndPointManager<Type> {
         }
     }
 
-    fun get(): Pair<Instant?, List<Type>> {
-        while (inputChannelMap.isEmpty()) { Thread.sleep(100) }
+    fun get(): Record<Type> {
+        while (inputChannelMap.isEmpty()) {
+            Thread.sleep(100)
+        }
 
         if (closedAndEmpty) error("All channels are closed and there are no values to get")
         return (inputChannelsIDIter.take(inputChannelMap.size)
@@ -42,7 +44,7 @@ abstract class ChannelReadManager<Type> : ChannelEndPointManager<Type> {
 
     fun addChannel(channel: InputChannel<Type>) {
         val id = channel.id
-        if (inputChannelMap.contains(id)) error("A channel already exists from task(${id.first}) to task(${id.second})")
+        if (inputChannelMap.contains(id)) error("A channel already exists from task(${id.src}) to task(${id.dst})")
         inputChannelMap[id] = channel
     }
 

@@ -18,7 +18,7 @@ abstract class ChannelWriteManager<Type>(val partitioner: Partitioner) : Channel
 
     open fun addChannel(channel: OutputChannel<Type>) {
         val id = channel.id
-        if (outputChannels.contains(id)) error("A channel already exists from task(${id.first}) to task(${id.second})")
+        if (outputChannels.contains(id)) error("A channel already exists from task(${id.src}) to task(${id.dst})")
         outputChannels[id] = channel
     }
 

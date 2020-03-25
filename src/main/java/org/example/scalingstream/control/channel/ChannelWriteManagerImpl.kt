@@ -2,6 +2,7 @@ package org.example.scalingstream.control.channel
 
 import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.ChannelID
+import org.example.scalingstream.channels.Record
 import org.example.scalingstream.partitioner.PartitionerConstructor
 import java.time.Instant
 
@@ -58,7 +59,7 @@ class ChannelWriteManagerImpl<Type>(
 
     private fun flushBuffer(id: ChannelID) {
         // TODO("Test")
-        outputChannels[id]!!.put(Pair(timestamp, buffers[id]!!))
+        outputChannels[id]!!.put(Record(timestamp, buffers[id]!!))
         buffers[id]!!.removeAll { true }
     }
 }
