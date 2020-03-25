@@ -7,7 +7,7 @@ import org.example.scalingstream.operator.Task
 import org.example.scalingstream.stream.ChannelManager
 import org.jgrapht.graph.DirectedAcyclicGraph
 
-class LocalExecutor(override val name: String) : Executor {
+class LocalExecutor : Executor {
 
     override val type: String = "LOCAL"
 

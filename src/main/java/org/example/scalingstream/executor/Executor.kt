@@ -8,8 +8,9 @@ import org.jgrapht.graph.DirectedAcyclicGraph
 typealias DeployFn = (Operator<*, *, *, *>, Task<*, *, *, *>) -> ObliviousDeployment
 
 interface Executor {
-    val name: String
     val type: String
+    val name: String
+        get() = "${type}_EXECUTOR"
 
     /**
      * Execute the Stream.
