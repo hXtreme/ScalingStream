@@ -1,4 +1,6 @@
-package org.example.scalingstream.channels
+package org.example.scalingstream.channels.redis
+
+import org.example.scalingstream.channels.*
 
 class RedisChannel<Type>(id: ChannelID, channelArgs: ChannelArgs) : AbstractChannel<Type>(id, channelArgs) {
     override val type: String= "REDIS"

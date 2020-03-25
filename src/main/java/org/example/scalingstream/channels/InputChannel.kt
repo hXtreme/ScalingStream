@@ -1,10 +1,9 @@
 package org.example.scalingstream.channels
 
-abstract class InputChannel<Type>(id: ChannelID) : DataChannel(id) {
+abstract class InputChannel<Type>(override val id: ChannelID) : ChannelIO {
     abstract fun peek(): Record<Type>?
 
     abstract fun get(): Record<Type>
-    fun close() {
-        TODO("Not yet implemented")
-    }
+
+    abstract fun close()
 }
