@@ -15,7 +15,7 @@ abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
     channelReadManagerList: List<ChannelReadManager<InputType>>,
     channelWriteManagerList: List<ChannelWriteManager<OutputType>>,
     operatorFn: (FnInp) -> FnOut
-) : Task<InputType, FnInp, FnOut, OutputType>(
+) : AbstractTask<InputType, FnInp, FnOut, OutputType>(
     taskID,
     operatorID,
     channelReadManagerList,

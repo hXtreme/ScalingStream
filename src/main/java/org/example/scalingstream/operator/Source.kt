@@ -8,13 +8,19 @@ import java.time.Instant
 import java.util.*
 
 
-class Source<OutputType: Any>(
+class Source<OutputType : Any>(
     taskID: UUID,
     operatorID: String,
     channelReadManagerList: List<ChannelReadManager<Unit>>,
     channelWriteManagerList: List<ChannelWriteManager<OutputType>>,
     operatorFn: (Unit) -> OutputType?
-) : Task<Unit, Unit, OutputType?, OutputType>(taskID, operatorID, emptyList(), channelWriteManagerList, operatorFn) {
+) : AbstractTask<Unit, Unit, OutputType?, OutputType>(
+    taskID,
+    operatorID,
+    emptyList(),
+    channelWriteManagerList,
+    operatorFn
+) {
     private var batchSize = 1
 
     private var numBatches = 0

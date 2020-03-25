@@ -10,9 +10,6 @@ typealias TaskConstructor<InputType, FnInp, FnOut, OutputType> =
             (UUID, String, List<ChannelReadManager<InputType>>, List<ChannelWriteManager<OutputType>>, (FnInp) -> FnOut)
         -> Task<InputType, FnInp, FnOut, OutputType>
 
-typealias SimpleTask<InputType, OutputType> =
-        Task<InputType, InputType, OutputType, OutputType>
-
 typealias SimpleTaskConstructor<InputType, OutputType> =
         TaskConstructor<InputType, InputType, OutputType, OutputType>
 

@@ -14,7 +14,13 @@ class Sink<InputType>(
     channelReadManagerList: List<ChannelReadManager<InputType>>,
     channelWriteManagerList: List<ChannelWriteManager<Unit>>,
     operatorFn: (InputType) -> Unit
-) : SimpleTask<InputType, Unit>(taskID, operatorID, channelReadManagerList, emptyList(), operatorFn) {
+) : AbstractTask<InputType, InputType, Unit, Unit>(
+    taskID,
+    operatorID,
+    channelReadManagerList,
+    emptyList(),
+    operatorFn
+) {
 
     override fun run() {
         Log.info("Running sink task", toString())
