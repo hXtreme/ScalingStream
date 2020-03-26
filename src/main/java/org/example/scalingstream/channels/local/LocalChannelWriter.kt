@@ -2,36 +2,29 @@ package org.example.scalingstream.channels.local
 
 import org.example.scalingstream.channels.ChannelArg
 import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.channels.InputChannel
+import org.example.scalingstream.channels.ChannelWriter
 import org.example.scalingstream.channels.Record
+import java.time.Instant
 import java.util.*
 import java.util.concurrent.BlockingQueue
 
-class LocalInputChannel<Type>(
+class LocalChannelWriter<Type>(
     id: ChannelID,
     private val channelArgs: Map<ChannelArg, Any>
-) : InputChannel<Type>(id) {
+) : ChannelWriter<Type>(id) {
     private var queueDict: HashMap<ChannelID, BlockingQueue<Record<Type>?>> =
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<ChannelID, BlockingQueue<Record<Type>?>>
-    private var q: BlockingQueue<Record<Type>?> =
-        queueDict[id] ?: error("No queue named $id to connect to.")
+    private var q: BlockingQueue<Record<Type>?> = queueDict[id] ?: error("No queue named $id to connect to.")
 
-    var isClosed: Boolean = false
-        private set
-
-    override fun peek(): Record<Type>? {
-        return q.peek()
+    override fun put(recordBatch: Record<Type>) {
+        q.put(recordBatch)
     }
 
-    override fun get(): Record<Type> {
-        val data = q.take()
-        if (data is Nothing) {
-            error("Deal with this")
-        }
-        return data!!
+    override fun flush() {
+        // Do nothing
     }
 
-    override fun close() {
+    override fun close(timestamp: Instant?) {
         TODO("Not yet implemented")
     }
 

@@ -1,8 +1,8 @@
 package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.control.channel.ChannelReadManager
-import org.example.scalingstream.control.channel.ChannelWriteManager
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
 import org.example.scalingstream.extensions.*
 import java.time.Duration
 import java.time.Instant
@@ -11,13 +11,13 @@ import java.util.*
 class Sink<InputType>(
     taskID: UUID,
     operatorID: String,
-    channelReadManagerList: List<ChannelReadManager<InputType>>,
-    channelWriteManagerList: List<ChannelWriteManager<Unit>>,
+    channelReaderManagerList: List<ChannelReaderManager<InputType>>,
+    channelWriterManagerList: List<ChannelWriterManager<Unit>>,
     operatorFn: (InputType) -> Unit
 ) : AbstractTask<InputType, InputType, Unit, Unit>(
     taskID,
     operatorID,
-    channelReadManagerList,
+    channelReaderManagerList,
     emptyList(),
     operatorFn
 ) {
@@ -25,9 +25,9 @@ class Sink<InputType>(
     override fun run() {
         Log.info("Running sink task", toString())
 
-        while (channelReadManagerList.any { !it.closedAndEmpty }) {
+        while (channelReaderManagerList.any { !it.closedAndEmpty }) {
             val (timestamp, batch) =
-                (inputChannelManagers.take(channelReadManagerList.size).find { it.isReady() != null }?.get())
+                (inputChannelManagers.take(channelReaderManagerList.size).find { it.isReady() != null }?.get())
                     ?: inputChannelManagers.first().get()
 
             timestamp?.let { Log.debug("Latency: ${Duration.between(timestamp, Instant.now())}", toString()) }
@@ -36,7 +36,7 @@ class Sink<InputType>(
         }
         Log.debug("Processed $numConsumed records.", toString())
         Log.info("Closing buffers and quitting.", toString())
-        channelReadManagerList.forEach { it.close() }
+        channelReaderManagerList.forEach { it.close() }
     }
 
     override fun processBatch(batch: List<InputType>) {

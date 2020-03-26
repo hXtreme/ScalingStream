@@ -9,12 +9,12 @@ class RedisChannel<Type>(id: ChannelID, channelArgs: ChannelArgs) : AbstractChan
         TODO("Not yet implemented")
     }
 
-    override fun getChannelReader(): InputChannel<Type> {
-        return RedisInputChannel(id, channelArgs)
+    override fun getChannelReader(): ChannelReader<Type> {
+        return RedisChannelReader(id, channelArgs)
     }
 
-    override fun getChannelWriter(): OutputChannel<Type> {
-        return RedisOutputChannel(id, channelArgs)
+    override fun getChannelWriter(): ChannelWriter<Type> {
+        return RedisChannelWriter(id, channelArgs)
     }
 
     override fun destroy() {

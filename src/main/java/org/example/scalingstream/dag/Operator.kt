@@ -3,8 +3,8 @@ package org.example.scalingstream.dag
 import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.Channel
 import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.control.channel.ChannelReadManagerImpl
-import org.example.scalingstream.control.channel.ChannelWriteManagerImpl
+import org.example.scalingstream.control.channel.ChannelReaderManagerImpl
+import org.example.scalingstream.control.channel.BufferedChannelWriterManager
 import org.example.scalingstream.executor.DeployFn
 import org.example.scalingstream.executor.Deployment
 import org.example.scalingstream.operator.TaskConstructor
@@ -72,7 +72,7 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
                 }
 
                 // Add the write-endpoint to a new OutputChannelManager
-                val channelWriteManager = ChannelWriteManagerImpl<OutputType>(batchSize, partitioner)
+                val channelWriteManager = BufferedChannelWriterManager<OutputType>(batchSize, partitioner)
                 channels
                     .map { (_, channel) -> channel.getChannelWriter() }
                     .forEach { outputChannel -> channelWriteManager.addChannel(outputChannel) }
@@ -99,7 +99,7 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
                 inputChannels.add(Pair(channelManager, channels))
 
                 // Add the read-endpoint to a new InputChannelManager
-                val channelReadManager = ChannelReadManagerImpl<InputType>()
+                val channelReadManager = ChannelReaderManagerImpl<InputType>()
                 channels
                     .map { (_, channel) -> channel.getChannelReader() }
                     .forEach { inputChannel -> channelReadManager.addChannel(inputChannel) }

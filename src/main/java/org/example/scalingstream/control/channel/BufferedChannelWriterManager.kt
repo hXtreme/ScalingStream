@@ -6,13 +6,13 @@ import org.example.scalingstream.channels.Record
 import org.example.scalingstream.partitioner.PartitionerConstructor
 import java.time.Instant
 
-class ChannelWriteManagerImpl<Type>(
+class BufferedChannelWriterManager<Type>(
     val batchSize: Int,
     partitioner: PartitionerConstructor
-) : ChannelWriteManager<Type>(partitioner()) {
+) : ChannelWriterManager<Type>(partitioner()) {
     private val buffers: MutableMap<ChannelID, MutableList<Type>> = mutableMapOf()
     private val channelIDs
-        get() = outputChannels.keys.toList()
+        get() = channelWriters.keys.toList()
 
     override var timestamp: Instant? = null
         set(value) {
@@ -22,7 +22,7 @@ class ChannelWriteManagerImpl<Type>(
 
     override fun put(batch: List<Type>) {
         // TODO("Test")
-        while (outputChannels.isEmpty()) {
+        while (channelWriters.isEmpty()) {
             Log.debug("Putting thread to sleep")
             Thread.sleep(100)
         }
@@ -37,7 +37,7 @@ class ChannelWriteManagerImpl<Type>(
 
     override fun close() {
         flushBuffers()
-        for (channelID in outputChannels.keys) {
+        for (channelID in channelWriters.keys) {
             close(channelID)
         }
     }
@@ -59,7 +59,7 @@ class ChannelWriteManagerImpl<Type>(
 
     private fun flushBuffer(id: ChannelID) {
         // TODO("Test")
-        outputChannels[id]!!.put(Record(timestamp, buffers[id]!!))
+        channelWriters[id]!!.put(Record(timestamp, buffers[id]!!))
         buffers[id]!!.removeAll { true }
     }
 }

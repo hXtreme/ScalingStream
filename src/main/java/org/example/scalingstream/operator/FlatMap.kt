@@ -1,25 +1,25 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.control.channel.ChannelReadManager
-import org.example.scalingstream.control.channel.ChannelWriteManager
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
 import java.util.*
 
 class FlatMap<InputType, OutputType>(
     taskID: UUID,
     operatorID: String,
-    channelReadManagerList: List<ChannelReadManager<InputType>>,
-    channelWriteManagerList: List<ChannelWriteManager<OutputType>>,
+    channelReaderManagerList: List<ChannelReaderManager<InputType>>,
+    channelWriterManagerList: List<ChannelWriterManager<OutputType>>,
     operatorFn: (InputType) -> Iterable<OutputType>
 ) : SingleInputTask<InputType, InputType, Iterable<OutputType>, OutputType>(
     taskID,
     operatorID,
-    channelReadManagerList,
-    channelWriteManagerList,
+    channelReaderManagerList,
+    channelWriterManagerList,
     operatorFn
 ) {
     override fun processBatch(batch: List<InputType>) {
         val processed = batch.flatMap { it -> operatorFn(it) }
-        channelWriteManagerList.forEach { it.put(processed) }
+        channelWriterManagerList.forEach { it.put(processed) }
         numProduced += processed.size
     }
 

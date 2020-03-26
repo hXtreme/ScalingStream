@@ -3,9 +3,9 @@ package org.example.scalingstream.channels.jiffy
 import org.example.scalingstream.channels.*
 import java.time.Instant
 
-class JiffyOutputChannel<Type>(
+class JiffyChannelWriter<Type>(
     name: ChannelID, channelArgs: ChannelArgs
-) : OutputChannel<Type>(name) {
+) : ChannelWriter<Type>(name) {
     private val path = "/$name"
 
     private val host: String = channelArgs.getOrDefault(ChannelArg.JIFFY_HOST, "127.0.0.1") as String

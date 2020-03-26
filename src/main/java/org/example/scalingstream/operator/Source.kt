@@ -2,8 +2,8 @@ package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
 import org.example.scalingstream.CONSTANTS
-import org.example.scalingstream.control.channel.ChannelReadManager
-import org.example.scalingstream.control.channel.ChannelWriteManager
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
 import java.time.Instant
 import java.util.*
 
@@ -11,14 +11,14 @@ import java.util.*
 class Source<OutputType : Any>(
     taskID: UUID,
     operatorID: String,
-    channelReadManagerList: List<ChannelReadManager<Unit>>,
-    channelWriteManagerList: List<ChannelWriteManager<OutputType>>,
+    channelReaderManagerList: List<ChannelReaderManager<Unit>>,
+    channelWriterManagerList: List<ChannelWriterManager<OutputType>>,
     operatorFn: (Unit) -> OutputType?
 ) : AbstractTask<Unit, Unit, OutputType?, OutputType>(
     taskID,
     operatorID,
     emptyList(),
-    channelWriteManagerList,
+    channelWriterManagerList,
     operatorFn
 ) {
     private var batchSize = 1
@@ -32,17 +32,17 @@ class Source<OutputType : Any>(
         batches.forEach { batch ->
             if (numBatches % CONSTANTS.TIMESTAMP_INTERVAL == 0) {
                 val timestamp = Instant.now()
-                channelWriteManagerList.forEach { it.timestamp = timestamp }
+                channelWriterManagerList.forEach { it.timestamp = timestamp }
             }
             numBatches++
 
-            channelWriteManagerList.forEach { it.put(batch) }
+            channelWriterManagerList.forEach { it.put(batch) }
             numProduced += batch.size
         }
 
         Log.debug("Source generated $numProduced records.", toString())
         Log.info("Closing buffers and quitting.", toString())
-        channelWriteManagerList.forEach { it.close() }
+        channelWriterManagerList.forEach { it.close() }
     }
 
     override fun processBatch(batch: List<Unit>) = Unit

@@ -18,11 +18,11 @@ class LocalChannel<Type>(id: ChannelID, channelArgs: ChannelArgs) : AbstractChan
         queueDict.remove(id)
     }
 
-    override fun getChannelReader(): InputChannel<Type> {
-        return LocalInputChannel(id, channelArgs)
+    override fun getChannelReader(): ChannelReader<Type> {
+        return LocalChannelReader(id, channelArgs)
     }
 
-    override fun getChannelWriter(): OutputChannel<Type> {
-        return LocalOutputChannel(id, channelArgs)
+    override fun getChannelWriter(): ChannelWriter<Type> {
+        return LocalChannelWriter(id, channelArgs)
     }
 }

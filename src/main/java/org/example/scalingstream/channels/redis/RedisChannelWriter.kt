@@ -1,11 +1,12 @@
 package org.example.scalingstream.channels.redis
 
 import org.example.scalingstream.channels.*
+import java.time.Instant
 
-class RedisInputChannel<Type>(
+class RedisChannelWriter<Type>(
     name: ChannelID,
     channelArgs: ChannelArgs
-) : InputChannel<Type>(name) {
+) : ChannelWriter<Type>(name) {
 
     private val host: String = channelArgs.getOrDefault(ChannelArg.REDIS_HOST, "127.0.0.1") as String
     private val port: Int = channelArgs.getOrDefault(ChannelArg.REDIS_PORT, 6379) as Int
@@ -15,12 +16,15 @@ class RedisInputChannel<Type>(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun peek(): Record<Type>? {
-        TODO("Not yet implemented")
-    }
-
-    override fun get(): Record<Type> {
+    override fun put(recordBatch: Record<Type>) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun flush() {
+        // Do nothing
+    }
+
+    override fun close(timestamp: Instant?) {
+        TODO("Not yet implemented")
+    }
 }

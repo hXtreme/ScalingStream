@@ -8,9 +8,9 @@ interface Channel<Type> {
     val id: ChannelID
     val type: String
 
-    fun getChannelReader(): InputChannel<Type>
+    fun getChannelReader(): ChannelReader<Type>
 
-    fun getChannelWriter(): OutputChannel<Type>
+    fun getChannelWriter(): ChannelWriter<Type>
 
     fun destroy()
 }

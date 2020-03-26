@@ -2,9 +2,9 @@ package org.example.scalingstream.channels.jiffy
 
 import org.example.scalingstream.channels.*
 
-class JiffyInputChannel<Type>(
+class JiffyChannelReader<Type>(
     name: ChannelID, channelArgs: ChannelArgs
-) : InputChannel<Type>(name) {
+) : ChannelReader<Type>(name) {
     private val path = "/$name"
 
     private val host: String = channelArgs.getOrDefault(ChannelArg.JIFFY_HOST, "127.0.0.1") as String
@@ -21,5 +21,9 @@ class JiffyInputChannel<Type>(
 
     override fun get(): Record<Type> {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun close() {
+        TODO("Not yet implemented")
     }
 }

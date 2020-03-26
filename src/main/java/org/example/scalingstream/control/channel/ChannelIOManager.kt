@@ -1,5 +1,5 @@
 package org.example.scalingstream.control.channel
 
-interface ChannelEndPointManager<Type> {
+interface ChannelIOManager<Type> {
     fun close()
 }

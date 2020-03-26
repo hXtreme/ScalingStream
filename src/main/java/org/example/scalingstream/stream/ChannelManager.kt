@@ -1,8 +1,8 @@
 package org.example.scalingstream.stream
 
 import org.example.scalingstream.channels.*
-import org.example.scalingstream.control.channel.ChannelReadManager
-import org.example.scalingstream.control.channel.ChannelWriteManager
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
 import org.example.scalingstream.dag.Operator
 import org.example.scalingstream.partitioner.PartitionerConstructor
 import org.jgrapht.graph.DefaultEdge
@@ -16,8 +16,8 @@ class ChannelManager<Type>(
     val partitionerConstructor: PartitionerConstructor
 ) : DefaultEdge() {
     val channels: MutableMap<ChannelID, Channel<Type>> = HashMap()
-    private val channelWriteManagers: MutableMap<UUID, ChannelWriteManager<Type>> = HashMap()
-    private val channelReadManagers: MutableMap<UUID, ChannelReadManager<Type>> = HashMap()
+    private val channelWriterManagers: MutableMap<UUID, ChannelWriterManager<Type>> = HashMap()
+    private val channelReaderManagers: MutableMap<UUID, ChannelReaderManager<Type>> = HashMap()
 
     @Suppress("UNCHECKED_CAST")
     val src: Operator<*, *, *, Type>
@@ -33,7 +33,7 @@ class ChannelManager<Type>(
      */
     fun channelBuilder(id: ChannelID): Channel<Type> {
         // TODO("Setup Channel-stuff")
-        if (channels.contains(id)) error("A channel already exists from task(${id.first}) to task(${id.second})")
+        if (channels.contains(id)) error("A channel already exists from task(${id.src}) to task(${id.dst})")
         channels[id] = channelBuilder.buildChannel(id)
 
         return channels[id]!!
@@ -52,23 +52,23 @@ class ChannelManager<Type>(
     }
 
 
-    fun registerChannelWriteManager(taskID: UUID, channelWriteManager: ChannelWriteManager<Type>) {
-        if (channelWriteManagers.contains(taskID)) error("There already exist a ChannelWriteManager associated with task($taskID)")
-        channelWriteManagers[taskID] = channelWriteManager
+    fun registerChannelWriteManager(taskID: UUID, channelWriterManager: ChannelWriterManager<Type>) {
+        if (channelWriterManagers.contains(taskID)) error("There already exist a ChannelWriteManager associated with task($taskID)")
+        channelWriterManagers[taskID] = channelWriterManager
     }
 
-    fun registerChannelReadManager(taskID: UUID, channelReadManager: ChannelReadManager<Type>) {
-        if (channelReadManagers.contains(taskID)) error("There already exist a ChannelReadManager associated with task($taskID)")
-        channelReadManagers[taskID] = channelReadManager
+    fun registerChannelReadManager(taskID: UUID, channelReaderManager: ChannelReaderManager<Type>) {
+        if (channelReaderManagers.contains(taskID)) error("There already exist a ChannelReadManager associated with task($taskID)")
+        channelReaderManagers[taskID] = channelReaderManager
     }
 
-    fun addChannelWrite(channelID: ChannelID, outputChannel: OutputChannel<Type>) {
+    fun addChannelWrite(channelID: ChannelID, channelWriter: ChannelWriter<Type>) {
         // TODO("Not yet implemented")
-        channelWriteManagers[channelID.first]!!.addChannel(outputChannel)
+        channelWriterManagers[channelID.src]!!.addChannel(channelWriter)
     }
 
-    fun addChannelRead(channelID: ChannelID, inputChannel: InputChannel<Type>) {
+    fun addChannelRead(channelID: ChannelID, channelReader: ChannelReader<Type>) {
         // TODO("Not yet implemented")
-        channelReadManagers[channelID.second]!!.addChannel(inputChannel)
+        channelReaderManagers[channelID.dst]!!.addChannel(channelReader)
     }
 }

@@ -9,12 +9,12 @@ class JiffyChannel<Type>(id: ChannelID, channelArgs: ChannelArgs) : AbstractChan
         TODO("Not yet implemented")
     }
 
-    override fun getChannelReader(): InputChannel<Type> {
-        return JiffyInputChannel(id, channelArgs)
+    override fun getChannelReader(): ChannelReader<Type> {
+        return JiffyChannelReader(id, channelArgs)
     }
 
-    override fun getChannelWriter(): OutputChannel<Type> {
-        return JiffyOutputChannel(id, channelArgs)
+    override fun getChannelWriter(): ChannelWriter<Type> {
+        return JiffyChannelWriter(id, channelArgs)
     }
 
     override fun destroy() {
