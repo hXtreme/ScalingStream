@@ -1,5 +1,6 @@
 package org.example.scalingstream.channels
 
+import org.example.scalingstream.channels.local.LocalChannelBuilder
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -15,7 +16,8 @@ internal class ChannelBuilderTest {
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
         @SuppressWarnings("unused")
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
         assertTrue(true)
     }
 
@@ -27,7 +29,8 @@ internal class ChannelBuilderTest {
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
 
         @SuppressWarnings("unused")
         val localChannel: Channel<Unit> = localChannelBuilder.buildChannel(channelID)
@@ -42,7 +45,8 @@ internal class ChannelBuilderTest {
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
 
         val localChannel: Channel<Unit> = localChannelBuilder.buildChannel(channelID)
 
@@ -59,7 +63,8 @@ internal class ChannelBuilderTest {
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
 
         val localChannel: Channel<Unit> = localChannelBuilder.buildChannel(channelID)
 

@@ -1,13 +1,11 @@
 package org.example.scalingstream.examples.wordcount
 
-import de.jupf.staticlog.Log
-import de.jupf.staticlog.core.LogLevel
 import org.example.scalingstream.StreamContext
 import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.channels.ChannelArg
-import org.example.scalingstream.channels.LocalChannelBuilder
+import org.example.scalingstream.channels.local.LocalChannelBuilder
 import org.example.scalingstream.executor.Executor
-import org.example.scalingstream.executor.LocalExecutor
+import org.example.scalingstream.executor.local.LocalExecutor
 import org.example.scalingstream.partitioner.HashPartitioner
 import org.example.scalingstream.stream.Stream
 import java.io.File
@@ -18,23 +16,24 @@ import kotlin.collections.HashMap
 private const val NAME = "WordCount"
 
 class WordCount(private val sentences: SentenceSource, batchSize: Int = 4) {
-    private val words: Stream<*, String?>
+    private val words: Stream<Unit, String>
     private val context: StreamContext
 
     init {
-        val executor: Executor = LocalExecutor(NAME)
+        val executor: Executor = LocalExecutor()
         val id = Pair(UUID.randomUUID(), UUID.randomUUID())
         val channelArgs = HashMap<ChannelArg, Any>()
         channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 10
 
-        val channelBuilder: ChannelBuilder = LocalChannelBuilder(channelArgs)
+        val channelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
         context = StreamContext(executor, channelBuilder, channelArgs, batchSize, ::HashPartitioner)
 
         words = context.createStream(NAME) { sentences.generator() }
 //        words.print()
         val count = words.flatMap {
-                (it as String).split(Regex("\\s"))
+                it.split(Regex("\\s"))
                     .map { s -> Pair(s, 1) }
             }
             .keyBy { it.first }
