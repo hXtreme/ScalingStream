@@ -50,6 +50,6 @@ abstract class AbstractTask<InputType, FnInp, FnOut, OutputType>(
     }
 
     override fun toString(): String {
-        return "${operatorID}${taskID.toString().substring(0, 10)}"
+        return name
     }
 }

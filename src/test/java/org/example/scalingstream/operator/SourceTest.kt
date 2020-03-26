@@ -11,7 +11,7 @@ internal class SourceTest {
         @SuppressWarnings("unused")
         val s = Source(
             UUID.randomUUID(),
-            "0",
+            "source",
             emptyList(),
             emptyList(),
             (fun(_): Any { return 1 })
@@ -24,7 +24,7 @@ internal class SourceTest {
     fun run() {
         val source = Source(
             UUID.randomUUID(),
-            "0",
+            "source",
             emptyList(),
             emptyList(),
             fun(_): Any { return 1 }

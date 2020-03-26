@@ -23,4 +23,7 @@ class RedisChannelReader<Type>(
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
+    override fun close() {
+        TODO("Not yet implemented")
+    }
 }
