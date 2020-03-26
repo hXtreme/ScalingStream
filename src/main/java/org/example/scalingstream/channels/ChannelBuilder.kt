@@ -7,7 +7,7 @@ enum class ChannelArg {
     REDIS_HOST, REDIS_PORT, REDIS_DB
 }
 
-typealias ChannelArgs = HashMap<ChannelArg, Any>
+typealias ChannelArgs = MutableMap<ChannelArg, Any>
 
 interface ChannelBuilder {
     val type: String
