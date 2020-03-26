@@ -8,10 +8,10 @@ class LocalChannel<Type>(id: ChannelID, channelArgs: ChannelArgs) : AbstractChan
     override val type: String = "LOCAL"
     private val maxQueueLength: Int = channelArgs.getOrDefault(ChannelArg.MAX_QUEUE_LEN, Int.Companion.MAX_VALUE) as Int
     private val queueDict =
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as MutableMap<ChannelID, BlockingQueue<Record<Type>?>>
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as MutableMap<ChannelID, CloseableLinkedBlockingQueue<Record<Type>>>
 
     init {
-        queueDict.putIfAbsent(id, LinkedBlockingQueue(maxQueueLength))
+        queueDict.putIfAbsent(id, CloseableLinkedBlockingQueue(maxQueueLength))
     }
 
     override fun destroy() {
