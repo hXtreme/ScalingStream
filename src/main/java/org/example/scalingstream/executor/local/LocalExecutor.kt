@@ -11,7 +11,7 @@ class LocalExecutor : Executor {
 
     override val type: String = "LOCAL"
 
-    private val runningTasks: MutableMap<Operator<*, *, *, *>, MutableList<ObliviousDeployment>> = HashMap()
+    private val runningTasks: MutableMap<Operator<*, *, *, *>, MutableList<Deployment>> = HashMap()
 
     override fun exec(dag: DirectedAcyclicGraph<Operator<*, *, *, *>, ChannelManager<*>>) {
 
@@ -31,7 +31,7 @@ class LocalExecutor : Executor {
         }
     }
 
-    override val deploy: DeployFn = fun(operator: Operator<*, *, *, *>, task: () -> Task<*, *, *, *>): ObliviousDeployment {
+    override val deploy: DeployFn = fun(operator: Operator<*, *, *, *>, task: () -> Task<*, *, *, *>): Deployment {
         val deployment = LocalDeployment(task)
         runningTasks.getOrPut(operator) { mutableListOf() }.add(deployment)
         return deployment

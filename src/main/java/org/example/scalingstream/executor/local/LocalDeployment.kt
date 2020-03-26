@@ -4,9 +4,9 @@ import org.example.scalingstream.executor.AbstractDeployment
 import org.example.scalingstream.operator.Task
 import java.util.*
 
-class LocalDeployment<InputType, FnInp, FnOut, OutputType>(
+class LocalDeployment(
     createTask: () -> Task<*, *, *, *>
-) : AbstractDeployment<InputType, FnInp, FnOut, OutputType>(createTask) {
+) : AbstractDeployment(createTask) {
     private val task: Task<*, *, *, *> = createTask()
     private val thread: Thread
 

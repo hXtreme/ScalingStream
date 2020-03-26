@@ -5,7 +5,7 @@ import org.example.scalingstream.operator.Task
 import org.example.scalingstream.stream.ChannelManager
 import org.jgrapht.graph.DirectedAcyclicGraph
 
-typealias DeployFn = (Operator<*, *, *, *>, () -> Task<*, *, *, *>) -> ObliviousDeployment
+typealias DeployFn = (Operator<*, *, *, *>, () -> Task<*, *, *, *>) -> Deployment
 
 interface Executor {
     val type: String

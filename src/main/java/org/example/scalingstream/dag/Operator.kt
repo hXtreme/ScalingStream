@@ -6,7 +6,7 @@ import org.example.scalingstream.channels.ChannelID
 import org.example.scalingstream.control.channel.ChannelReadManagerImpl
 import org.example.scalingstream.control.channel.ChannelWriteManagerImpl
 import org.example.scalingstream.executor.DeployFn
-import org.example.scalingstream.executor.ObliviousDeployment
+import org.example.scalingstream.executor.Deployment
 import org.example.scalingstream.operator.TaskConstructor
 import org.example.scalingstream.partitioner.PartitionerConstructor
 import org.example.scalingstream.stream.ChannelManager
@@ -27,7 +27,7 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
 
     private val graph = streamBuilder.streamExecutionDAG
 
-    val deployedTasks: MutableMap<UUID, ObliviousDeployment> = HashMap()
+    val deployedTasks: MutableMap<UUID, Deployment> = HashMap()
 
     var parallelism = initialParallelism
         get() = deployedTasks.size
