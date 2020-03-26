@@ -5,18 +5,20 @@ import org.example.scalingstream.operator.Task
 import java.util.*
 
 class LocalDeployment<InputType, FnInp, FnOut, OutputType>(
-    val task: Task<InputType, FnInp, FnOut, OutputType>
-) : AbstractDeployment<InputType, FnInp, FnOut, OutputType>(task) {
-    private val thread = Thread(task, name)
+    createTask: () -> Task<*, *, *, *>
+) : AbstractDeployment<InputType, FnInp, FnOut, OutputType>(createTask) {
+    private val task: Task<*, *, *, *> = createTask()
+    private val thread: Thread
 
     override var isDone: Boolean = false
         private set
 
     init {
+        thread = Thread(task, name)
         thread.start()
     }
 
-    override fun join(){
+    override fun join() {
         thread.join()
         isDone = true
     }

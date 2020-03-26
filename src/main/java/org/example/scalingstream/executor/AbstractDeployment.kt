@@ -2,7 +2,7 @@ package org.example.scalingstream.executor
 
 import org.example.scalingstream.operator.Task
 
-abstract class AbstractDeployment<InputType, FnInp, FnOut, OutputType>(task: Task<InputType, FnInp, FnOut, OutputType>) :
+abstract class AbstractDeployment<InputType, FnInp, FnOut, OutputType>(createTask: () -> Task<*, *, *, *>) :
     Deployment<InputType, FnInp, FnOut, OutputType> {
 
     override fun run() {

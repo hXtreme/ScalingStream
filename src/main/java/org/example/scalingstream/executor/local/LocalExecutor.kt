@@ -31,7 +31,7 @@ class LocalExecutor : Executor {
         }
     }
 
-    override val deploy: DeployFn = fun(operator: Operator<*, *, *, *>, task: Task<*, *, *, *>): ObliviousDeployment {
+    override val deploy: DeployFn = fun(operator: Operator<*, *, *, *>, task: () -> Task<*, *, *, *>): ObliviousDeployment {
         val deployment = LocalDeployment(task)
         runningTasks.getOrPut(operator) { mutableListOf() }.add(deployment)
         return deployment

@@ -110,9 +110,8 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
             }
 
         // Setup and start the task.
-        val task = taskConstructor(id, name, inputChannelManagers, channelWriteManagers, operatorFn)
-//        val thread = Thread({ task.run() }, task.name)
-        val deployment = deployFn(this, task)
+        val deployment =
+            deployFn(this) { taskConstructor(id, name, inputChannelManagers, channelWriteManagers, operatorFn) }
 
         // Add the write-endpoint of the input channels
         inputChannels.flatMap { (manager, channelList) ->
