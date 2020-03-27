@@ -7,11 +7,12 @@ import org.example.scalingstream.executor.Executor
 import org.example.scalingstream.operator.TaskConstructor
 import org.example.scalingstream.partitioner.PartitionerConstructor
 import org.jgrapht.graph.DirectedAcyclicGraph
-import org.jgrapht.traverse.TopologicalOrderIterator
+
+typealias StreamExecutionDAG = DirectedAcyclicGraph<Operator<*, *, *, *>, ChannelManager<*>>
 
 class StreamBuilder(private val channelBuilder: ChannelBuilder) {
-    var streamExecutionDAG: DirectedAcyclicGraph<Operator<*, *, *, *>, ChannelManager<*>> =
-        DirectedAcyclicGraph(ChannelManager::class.java)
+    var streamExecutionDAG: StreamExecutionDAG =
+        StreamExecutionDAG(ChannelManager::class.java)
     private val roots: HashSet<Operator<*, *, *, *>> = HashSet()
 
     fun <OutputType : Any> addSource(

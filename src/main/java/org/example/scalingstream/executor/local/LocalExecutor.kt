@@ -4,8 +4,7 @@ import de.jupf.staticlog.Log
 import org.example.scalingstream.dag.Operator
 import org.example.scalingstream.executor.*
 import org.example.scalingstream.operator.Task
-import org.example.scalingstream.stream.ChannelManager
-import org.jgrapht.graph.DirectedAcyclicGraph
+import org.example.scalingstream.stream.StreamExecutionDAG
 
 class LocalExecutor : Executor {
 
@@ -13,7 +12,7 @@ class LocalExecutor : Executor {
 
     private val runningTasks: MutableSet<Pair<Operator<*, *, *, *>, Deployment>> = HashSet()
 
-    override fun exec(dag: DirectedAcyclicGraph<Operator<*, *, *, *>, ChannelManager<*>>) {
+    override fun exec(dag: StreamExecutionDAG) {
 
         for (operators in dag) {
             operators.run(deploy)
