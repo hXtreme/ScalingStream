@@ -1,5 +1,7 @@
 package org.example.scalingstream.examples.wordcount
 
+import de.jupf.staticlog.Log
+import de.jupf.staticlog.core.LogLevel
 import org.example.scalingstream.StreamContext
 import org.example.scalingstream.channels.ChannelBuilder
 import org.example.scalingstream.channels.ChannelArg
@@ -15,7 +17,7 @@ import kotlin.collections.HashMap
 
 private const val NAME = "WordCount"
 
-class WordCount(private val sentences: SentenceSource, batchSize: Int = 4) {
+class WordCount(private val sentences: SentenceSource, batchSize: Int = 4, heavyHitterThreshold: Int = 1000) {
     private val words: Stream<Unit, String>
     private val context: StreamContext
 
@@ -33,16 +35,17 @@ class WordCount(private val sentences: SentenceSource, batchSize: Int = 4) {
         words = context.createStream(NAME) { sentences.generator() }
 //        words.print()
         val count = words.flatMap {
-                it.split(Regex("\\s"))
-                    .map { s -> Pair(s, 1) }
-            }
+            it.split(Regex("\\s"))
+                .map { s -> Pair(s, 1) }
+        }
             .keyBy { it.first }
             .reduce { (k, v1), (_, v2) -> Pair(k, v1 + v2) }
 
 //        count.filter { (_, v) -> v > 50 }//.drop()
-//        count.filter { (_, v) -> v > 50 }.print()
-//        count.print()
-        count.drop()
+        count.filter { (k, v) -> v > heavyHitterThreshold && k !in setOf("ut", "#", "") }
+            .map { (k, v) -> "Heavy Hitter($v): $k" }.print()
+        count.filter { (_, v) -> v < heavyHitterThreshold }//.print()
+            .drop()
     }
 
     fun run() {
@@ -52,8 +55,11 @@ class WordCount(private val sentences: SentenceSource, batchSize: Int = 4) {
 
 fun main(args: Array<String>) {
     val file = File(args.getOrElse(0) { "./README.md" })
-    val sentenceSource = SentenceSource(file, 10000, 100)
-    val wordCount = WordCount(sentenceSource, 50)
-//    Log.logLevel = LogLevel.ERROR
+    val numRecords = 10000
+    val sentenceLength = 100
+    val sentenceSource = SentenceSource(file, numRecords, sentenceLength)
+    val threshold = (numRecords * sentenceLength) / 50
+    val wordCount = WordCount(sentenceSource, 50, threshold)
+    Log.logLevel = LogLevel.ERROR
     wordCount.run()
 }

@@ -11,11 +11,10 @@ internal class SinkTest {
         @SuppressWarnings("unused")
         val sink = Sink(
             UUID.randomUUID(),
-            "0",
+            "sink",
             emptyList(),
-            emptyList(),
-            fun(_: Unit) {}
-        )
+            emptyList()
+        ) { it: Int -> print(it) }
 
         assertTrue(true)
     }
@@ -24,11 +23,10 @@ internal class SinkTest {
     fun run() {
         val sink = Sink(
             UUID.randomUUID(),
-            "0",
+            "sink",
             emptyList(),
-            emptyList(),
-            fun(_: Unit) {}
-        )
+            emptyList()
+        ) { it: Int -> print(it) }
 
         sink.run()
         assertTrue(true)
