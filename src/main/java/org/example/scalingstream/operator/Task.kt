@@ -13,7 +13,7 @@ interface Task<InputType, FnInp, FnOut, OutputType> : Runnable {
      * Human-friendly name for this [Task]
      */
     val name: String
-        get() = "$operatorID-${taskID.toString().substring(0, 8)}"
+        get() = "$operatorID-${taskID.toString().substring(0, 5)}"
 
     /**
      * The number of records consumed by this task.

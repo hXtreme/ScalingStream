@@ -23,13 +23,23 @@ class LocalDeployment(
         isDone = true
     }
 
-    override val taskID: UUID = task.taskID
+    override val taskID: UUID
+        get() {
+            return task.taskID
+        }
 
-    override val operatorID: String = task.operatorID
+    override val operatorID: String
+        get() {
+            return task.operatorID
+        }
 
     override val numConsumed: Int
-        get() = task.numConsumed
+        get() {
+            return task.numConsumed
+        }
 
     override val numProduced: Int
-        get() = task.numConsumed
+        get() {
+            return task.numConsumed
+        }
 }

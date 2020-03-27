@@ -29,15 +29,8 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
 
     val deployedTasks: MutableMap<UUID, Deployment> = HashMap()
 
-    var parallelism = initialParallelism
-        get() = deployedTasks.size
-        private set
-
     var isRunning: Boolean = false
         private set
-
-    val taskIDs
-        get() = deployedTasks.keys
 
     fun run(deployFn: DeployFn) {
         Log.debug("Running operator.", name)
@@ -54,58 +47,54 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
 
     private fun spawnTask(deployFn: DeployFn, id: UUID) {
         // Setup the output channels - read-endpoint and write-endpoint
-        val outgoingChannelManagers = graph.outgoingEdgesOf(this) as Set<ChannelManager<OutputType>>
         val channelWriteManagers = outgoingChannelManagers
             .map { channelManager ->
                 val dst = channelManager.dst
                 // Build all the outgoing channels
                 val channels = dst.deployedTasks.keys.map { destID ->
-                    val channelID = ChannelID(id, destID)
-                    val channel = channelManager.channelBuilder(channelID)
-                    Pair(channelID, channel)
+                    channelManager.channelBuilder(ChannelID(id, destID))
                 }
                 // Add the read-endpoint of the channels
-                channels.forEach { (channelID, channel) ->
-                    val inputChannel = channel.getChannelReader()
-                    channelManager.addChannelRead(channelID, inputChannel)
-//                    dst.addInputChannel(channelID.second, inputChannel)
+                channels.forEach { channel ->
+                    channelManager.addChannelReader(channel.id)
                 }
 
                 // Add the write-endpoint to a new OutputChannelManager
                 val channelWriteManager = BufferedChannelWriterManager<OutputType>(batchSize, partitioner)
+                channelManager.registerChannelWriteManager(id, channelWriteManager)
                 channels
-                    .map { (_, channel) -> channel.getChannelWriter() }
-                    .forEach { outputChannel -> channelWriteManager.addChannel(outputChannel) }
+                    .forEach { channel ->
+                        channelManager.addChannelWriter(channel.id)
+                        // channel.getChannelWriter()
+                    }
+                //.forEach { outputChannel -> channelWriteManager.addChannel(outputChannel) }
 
                 // Register and return the OutputChannelManager
-                channelManager.registerChannelWriteManager(id, channelWriteManager)
                 channelWriteManager
             }
 
         // Setup the input channels - read-endpoint
-        val incomingChannelManagers = graph.incomingEdgesOf(this) as Set<ChannelManager<InputType>>
-        val inputChannels: MutableSet<Pair<ChannelManager<InputType>, List<Pair<ChannelID, Channel<InputType>>>>> =
+        val inputChannels: MutableSet<Pair<ChannelManager<InputType>,List<Channel<InputType>>>> =
             mutableSetOf()
         val inputChannelManagers = incomingChannelManagers
             .map { channelManager ->
                 val src = channelManager.src
                 // Build all the incoming channels
                 val channels = src.deployedTasks.keys.map { srcID ->
-                    val channelID = ChannelID(srcID, id)
-                    val channel = channelManager.channelBuilder(channelID)
-                    Pair(channelID, channel)
+                    channelManager.channelBuilder(ChannelID(srcID, id))
                 }
 
                 inputChannels.add(Pair(channelManager, channels))
 
                 // Add the read-endpoint to a new InputChannelManager
                 val channelReadManager = ChannelReaderManagerImpl<InputType>()
-                channels
-                    .map { (_, channel) -> channel.getChannelReader() }
-                    .forEach { inputChannel -> channelReadManager.addChannel(inputChannel) }
-
-                // Register and return the OutputChannelManager
                 channelManager.registerChannelReadManager(id, channelReadManager)
+                channels
+                    .forEach { channel ->
+                        channelManager.addChannelReader(channel.id)
+                        //channel.getChannelReader()
+                    }
+                // Register and return the OutputChannelManager
                 channelReadManager
             }
 
@@ -114,18 +103,12 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
             deployFn(this) { taskConstructor(id, name, inputChannelManagers, channelWriteManagers, operatorFn) }
 
         // Add the write-endpoint of the input channels
-        inputChannels.flatMap { (manager, channelList) ->
-                channelList.map { (channelID, channel) ->
-                    Triple(
-                        manager,
-                        channelID,
-                        channel
-                    )
-                }
+        inputChannels.forEach { (channelManager, channelList) ->
+            channelList.forEach { channel ->
+                channelManager.addChannelWriter(channel.id)
+//                channel.getChannelWriter()
             }
-            .forEach { (manager, channelID, channel) ->
-                manager.addChannelWrite(channelID, channel.getChannelWriter())
-            }
+        }
         deployedTasks[id] = deployment
     }
 
@@ -135,8 +118,14 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
     }
 
     fun removeTask(taskID: UUID) {
-        if (!isRunning) error("Can't spawn task($taskID) when operator($name) is not running.")
-        TODO("Not yet implemented")
+        if (!isRunning) error("Can't remove task($taskID) when operator($name) is not running.")
+        incomingChannelManagers.forEach { channelManager ->
+            val srcs = channelManager.src.deployedTasks.keys
+            srcs.map { src -> ChannelID(src, taskID) }.forEach { channelManager.destroy(it) }
+        }
+        // deployedTasks[taskID].kill()
+        deployedTasks.remove(taskID)
+        // TODO("Not yet implemented")
     }
 
     fun <FnIn, FnOut, Type> addOperator(
@@ -149,6 +138,27 @@ class Operator<InputType, FnIn, FnOut, OutputType>(
     ): Operator<OutputType, FnIn, FnOut, Type> {
         return streamBuilder.addOperator(this, name, task, batchSize, initialParallelism, partitioner, operatorFn)
     }
+
+    val taskIDs: Set<UUID>
+        get() {
+            return deployedTasks.keys
+        }
+
+    var parallelism: Int = initialParallelism
+        get() {
+            return deployedTasks.size
+        }
+        private set
+
+    private val outgoingChannelManagers: Set<ChannelManager<OutputType>>
+        get() {
+            return graph.outgoingEdgesOf(this) as Set<ChannelManager<OutputType>>
+        }
+
+    private val incomingChannelManagers: Set<ChannelManager<InputType>>
+        get() {
+            return graph.incomingEdgesOf(this) as Set<ChannelManager<InputType>>
+        }
 
     companion object StaticVar {
         var uID: MutableMap<String, Int> = HashMap()

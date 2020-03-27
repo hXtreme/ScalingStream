@@ -1,7 +1,10 @@
 package org.example.scalingstream.stream
 
+import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.*
+import org.example.scalingstream.control.channel.BufferedChannelWriterManager
 import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelReaderManagerImpl
 import org.example.scalingstream.control.channel.ChannelWriterManager
 import org.example.scalingstream.dag.Operator
 import org.example.scalingstream.partitioner.PartitionerConstructor
@@ -32,15 +35,23 @@ class ChannelManager<Type>(
      * @return the ChannelBuilder for the channel that can be used to make Input and Output endpoints.
      */
     fun channelBuilder(id: ChannelID): Channel<Type> {
-        // TODO("Setup Channel-stuff")
         if (channels.contains(id)) error("A channel already exists from task(${id.src}) to task(${id.dst})")
         channels[id] = channelBuilder.buildChannel(id)
-
         return channels[id]!!
     }
 
-    val isClosedAndEmpty: Boolean
-        get() = false // TODO("Not yet implemented")
+    fun addChannelReader(channelID: ChannelID) {
+        val channel = channels.getOrPut(channelID) { channelBuilder.buildChannel(channelID) }
+        val channelReader = channel.getChannelReader()
+        channelReaderManagers.getOrPut(channelID.dst) { ChannelReaderManagerImpl() }.addChannel(channelReader)
+    }
+
+    fun addChannelWriter(channelID: ChannelID) {
+        val channel = channels.getOrPut(channelID) { channelBuilder.buildChannel(channelID) }
+        val channelWriter = channel.getChannelWriter()
+        channelWriterManagers.getOrPut(channelID.src) { BufferedChannelWriterManager(batchSize, partitionerConstructor) }
+            .addChannel(channelWriter)
+    }
 
     fun destroy() {
         // TODO("Not yet implemented")
@@ -48,7 +59,12 @@ class ChannelManager<Type>(
     }
 
     fun destroy(id: ChannelID) {
-        channels.remove(id)
+        /**
+         * 1. Stop Writer
+         * 2. Remove Writer
+         */
+        val channel = channels.remove(id)
+        channelWriterManagers.remove(id.src)?.closeChannel(id) ?: Log.warn("Ideally we'd want two functions destroy and remove.")
     }
 
 
@@ -62,13 +78,4 @@ class ChannelManager<Type>(
         channelReaderManagers[taskID] = channelReaderManager
     }
 
-    fun addChannelWrite(channelID: ChannelID, channelWriter: ChannelWriter<Type>) {
-        // TODO("Not yet implemented")
-        channelWriterManagers[channelID.src]!!.addChannel(channelWriter)
-    }
-
-    fun addChannelRead(channelID: ChannelID, channelReader: ChannelReader<Type>) {
-        // TODO("Not yet implemented")
-        channelReaderManagers[channelID.dst]!!.addChannel(channelReader)
-    }
 }
