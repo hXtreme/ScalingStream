@@ -1,5 +1,6 @@
 package org.example.scalingstream.control.channel
 
+import de.jupf.staticlog.Log
 import org.example.scalingstream.channels.ChannelID
 import org.example.scalingstream.channels.ChannelWriter
 import org.example.scalingstream.partitioner.Partitioner
@@ -25,11 +26,15 @@ abstract class ChannelWriterManager<Type>(val partitioner: Partitioner) : Channe
     /**
      * Should only ever be called from ChannelManager.
      */
-    open fun removeChannel(id: ChannelID) {
+    open fun closeChannel(id: ChannelID) {
         // TODO: Add some handover logic
         // IE.What to do to propagate the information that the channel is closed;
         // and how to handle future partitioning.
-        channelWriters[id]!!.close(timestamp)
+        (channelWriters[id]?.close(timestamp) )
+            ?: run {
+                Log.error("This should not have been null.")
+                // error("Could not find $id in channelWriters")
+            }
         channelWriters.remove(id)
     }
 }

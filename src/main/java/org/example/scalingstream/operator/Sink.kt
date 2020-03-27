@@ -25,15 +25,18 @@ class Sink<InputType>(
     override fun run() {
         Log.info("Running sink task", toString())
 
-        while (channelReaderManagerList.any { !it.closedAndEmpty }) {
-            val (timestamp, batch) =
-                (inputChannelManagers.take(channelReaderManagerList.size).find { it.isReady() != null }?.get())
-                    ?: inputChannelManagers.first().get()
+        while (channelReaderManagerList.any { !it.isClosed }) {
+            while (channelReaderManagerList.any { !it.isEmpty }){
 
-            timestamp?.let { Log.debug("Latency: ${Duration.between(timestamp, Instant.now())}", toString()) }
+            val selectedChannelReaderManager =
+                (inputChannelManagers.take(channelReaderManagerList.size).find { it.isNotEmpty })
+                    ?: inputChannelManagers.first()
+            val (timestamp, batch) = selectedChannelReaderManager.get()
+
+            timestamp?.let { Log.debug("Latency: ${Duration.between(timestamp, Instant.now())}", name) }
             processBatch(batch)
             numConsumed += batch.size
-        }
+        }}
         Log.debug("Processed $numConsumed records.", toString())
         Log.info("Closing buffers and quitting.", toString())
         channelReaderManagerList.forEach { it.close() }

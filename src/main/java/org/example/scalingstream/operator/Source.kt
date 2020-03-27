@@ -35,7 +35,6 @@ class Source<OutputType : Any>(
                 channelWriterManagerList.forEach { it.timestamp = timestamp }
             }
             numBatches++
-
             channelWriterManagerList.forEach { it.put(batch) }
             numProduced += batch.size
         }

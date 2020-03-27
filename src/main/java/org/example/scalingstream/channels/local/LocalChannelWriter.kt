@@ -6,7 +6,6 @@ import org.example.scalingstream.channels.ChannelWriter
 import org.example.scalingstream.channels.Record
 import java.time.Instant
 import java.util.*
-import java.util.concurrent.BlockingQueue
 
 class LocalChannelWriter<Type>(
     id: ChannelID,
@@ -17,7 +16,10 @@ class LocalChannelWriter<Type>(
     private var q: CloseableLinkedBlockingQueue<Record<Type>> = queueDict[id] ?: error("No queue named $id to connect to.")
 
     override fun put(recordBatch: Record<Type>) {
-        q.put(recordBatch)
+//        Log.debug("Writing $recordBatch to LocalChannel")
+        val (timestamp, batch) = recordBatch
+        val copiedBatch = batch.map { it }
+        q.put(Record(timestamp, copiedBatch))
     }
 
     override fun flush() {
@@ -25,8 +27,7 @@ class LocalChannelWriter<Type>(
     }
 
     override fun close(timestamp: Instant?) {
-        // TODO("To implement this just extend Blocking queue.")
-        q.put(null)
+        q.close()
     }
 
     override fun connect() {}

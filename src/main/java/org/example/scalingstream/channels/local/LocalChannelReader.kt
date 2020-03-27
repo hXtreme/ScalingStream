@@ -5,30 +5,40 @@ import org.example.scalingstream.channels.ChannelID
 import org.example.scalingstream.channels.ChannelReader
 import org.example.scalingstream.channels.Record
 import java.util.*
-import java.util.concurrent.BlockingQueue
 
 class LocalChannelReader<Type>(
     id: ChannelID,
     private val channelArgs: Map<ChannelArg, Any>
 ) : ChannelReader<Type>(id) {
-    private var queueDict: HashMap<ChannelID, BlockingQueue<Record<Type>?>> =
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<ChannelID, BlockingQueue<Record<Type>?>>
-    private var q: BlockingQueue<Record<Type>?> =
+    private var queueDict: HashMap<ChannelID, CloseableLinkedBlockingQueue<Record<Type>>> =
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] as HashMap<ChannelID, CloseableLinkedBlockingQueue<Record<Type>>>
+    private var q: CloseableLinkedBlockingQueue<Record<Type>> =
         queueDict[id] ?: error("No queue named $id to connect to.")
 
-    var isClosed: Boolean = false
-        private set
+    override val isClosed: Boolean
+        get() {
+            return q.isClosed
+        }
+    override val isNotClosed: Boolean
+        get() {
+            return !q.isClosed
+        }
+    override val isEmpty: Boolean
+        get() {
+            return q.isEmpty()
+        }
+    override val isNotEmpty: Boolean
+        get() {
+            return q.isNotEmpty()
+        }
 
     override fun peek(): Record<Type>? {
         return q.peek()
     }
 
     override fun get(): Record<Type> {
-        val data = q.take()
-        if (data is Nothing) {
-            error("Deal with this")
-        }
-        return data!!
+        if (isClosed && isEmpty) error("Can't read from an empty closed channel.")
+        return q.take()
     }
 
     override fun close() {

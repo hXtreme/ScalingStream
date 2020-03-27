@@ -6,7 +6,7 @@ import org.example.scalingstream.channels.Record
 import org.example.scalingstream.extensions.*
 
 abstract class ChannelReaderManager<Type> : ChannelIOManager<Type> {
-    private val channelReaderMap: MutableMap<ChannelID, ChannelReader<Type>> = mutableMapOf()
+    protected val channelReaderMap: MutableMap<ChannelID, ChannelReader<Type>> = mutableMapOf()
     private val inputChannelsIDIter = sequence {
         var current = 0
         while (true) {
@@ -18,25 +18,24 @@ abstract class ChannelReaderManager<Type> : ChannelIOManager<Type> {
         }
     }.iterator()
 
-    fun isReady(): Boolean {
-        return channelReaderMap.any { (_, v) ->
-            v.peek() != null
-        }
-    }
 
     fun get(): Record<Type> {
         while (channelReaderMap.isEmpty()) {
             Thread.sleep(100)
         }
 
-        if (closedAndEmpty) error("All channels are closed and there are no values to get")
-        return (inputChannelsIDIter.take(channelReaderMap.size)
+        if (isClosed && isEmpty)
+            error("All channels are closed and there are no values to get")
+        val selectedChannel = (inputChannelsIDIter.take(channelReaderMap.size)
             .find { (_, v) -> v.peek() != null } ?: inputChannelsIDIter.first()).second
-            .get()
+        return selectedChannel.get()
 
     }
 
-    abstract var closedAndEmpty: Boolean
+    abstract val isClosed: Boolean
+    abstract val isNotClosed: Boolean
+    abstract val isEmpty: Boolean
+    abstract val isNotEmpty: Boolean
 
     fun addChannels(channelReaders: List<ChannelReader<Type>>) {
         channelReaders.forEach { addChannel(it) }

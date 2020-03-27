@@ -24,14 +24,18 @@ abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
 ) {
     override fun run() {
         Log.info("Running task.", name)
-        while (channelReaderManagerList.any { !it.closedAndEmpty }) {
-            val (timestamp, batch) = (inputChannelManagers.take(channelReaderManagerList.size)
-                .find { it.isReady() } ?: inputChannelManagers.first())
-                .get()
+        while (channelReaderManagerList.any { !it.isClosed }) {
+            while (channelReaderManagerList.any { it.isNotEmpty }) {
+                val selectedChannelReaderManager =
+                    (inputChannelManagers.take(channelReaderManagerList.size).find { it.isNotEmpty })!!
+                        //?: inputChannelManagers.first()
+                val (timestamp, batch) = selectedChannelReaderManager.get()
 
-            channelWriterManagerList.forEach { it.timestamp = timestamp }
-            processBatch(batch)
-            numConsumed += batch.size
+                channelWriterManagerList.forEach { it.timestamp = timestamp }
+                processBatch(batch)
+                numConsumed += batch.size
+            }
+
         }
 
         Log.debug("Processed $numConsumed records.", name)
