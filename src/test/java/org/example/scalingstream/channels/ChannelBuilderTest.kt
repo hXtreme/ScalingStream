@@ -1,5 +1,6 @@
 package org.example.scalingstream.channels
 
+import org.example.scalingstream.channels.local.LocalChannelBuilder
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Instant
@@ -10,67 +11,65 @@ internal class ChannelBuilderTest {
 
     @Test
     fun localChannelBuilderTest() {
-        val TEST_NAME = "${TEST_CLASS}->LocalBuilder"
-
-        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        val channelArgs: ChannelArgs = HashMap()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
         @SuppressWarnings("unused")
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME:Builder", channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
         assertTrue(true)
     }
 
     @Test
-    fun localChannelContextTest() {
-        val TEST_NAME = "${TEST_CLASS}->LocalContext"
+    fun localChannelTest() {
+        val channelID = ChannelID(UUID.randomUUID(), UUID.randomUUID())
 
-        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        val channelArgs: ChannelArgs = HashMap()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
 
         @SuppressWarnings("unused")
-        val localContext: DataChannelContext = localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+        val localChannel: Channel<Unit> = localChannelBuilder.buildChannel(channelID)
         assertTrue(true)
     }
 
     @Test
     fun localInputChannelTest() {
-        val TEST_NAME = "${TEST_CLASS}->LocalInput"
+        val channelID = ChannelID(UUID.randomUUID(), UUID.randomUUID())
 
-        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        val channelArgs: ChannelArgs = HashMap()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
 
-        localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+        val localChannel: Channel<Unit> = localChannelBuilder.buildChannel(channelID)
 
         @SuppressWarnings("unused")
-        val localInput = localChannelBuilder.buildInputChannel<Unit>("$TEST_NAME")
+        val localInput = localChannel.getChannelReader()
         assertTrue(true)
     }
 
     @Test
     fun localOutputChannelTest() {
-        val TEST_NAME = "${Companion.TEST_CLASS}->LocalOutput"
+        val channelID = ChannelID(UUID.randomUUID(), UUID.randomUUID())
 
-        val channelArgs: ChannelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant? ,List<Any>?>>>()
+        val channelArgs: ChannelArgs = HashMap()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
         channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
 
-        val localChannelBuilder: ChannelBuilder = LocalChannelBuilder("$TEST_NAME", channelArgs)
+        val localChannelBuilder: ChannelBuilder =
+            LocalChannelBuilder(channelArgs)
 
-        localChannelBuilder.buildChannelContext<Unit>("$TEST_NAME")
+        val localChannel: Channel<Unit> = localChannelBuilder.buildChannel(channelID)
 
         @SuppressWarnings("unused")
-        val localOutput = localChannelBuilder.buildOutputChannel<Unit>("$TEST_NAME")
+        val localOutput = localChannel.getChannelWriter()
         assertTrue(true)
-    }
-
-    companion object {
-        const val TEST_CLASS = "Test->ChannelBuilderTest"
     }
 }

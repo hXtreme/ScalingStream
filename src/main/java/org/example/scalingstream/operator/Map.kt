@@ -1,25 +1,20 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
+import java.util.*
 
 class Map<InputType, OutputType>(
-    idx: Int,
+    taskID: UUID,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    channelReaderManagerList: List<ChannelReaderManager<InputType>>,
+    channelWriterManagerList: List<ChannelWriterManager<OutputType>>,
     operatorFn: (InputType) -> OutputType
-) : SingleInputSimpleOperator<InputType, OutputType>(
-    idx,
+) : SingleInputSimpleTask<InputType, OutputType>(
+    taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    channelReaderManagerList,
+    channelWriterManagerList,
     operatorFn
 ) {
     override fun processRecord(record: InputType): OutputType {

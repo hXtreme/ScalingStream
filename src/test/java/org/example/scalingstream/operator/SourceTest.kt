@@ -1,44 +1,47 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.channels.*
-import org.example.scalingstream.partitioner.RoundRobinPartitioner
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
-import java.time.Instant
 import java.util.*
-import kotlin.collections.HashMap
 
 internal class SourceTest {
 
-    companion object {
-        const val TEST_CLASS = "Test->SourceTest"
+    private fun count(end: Int): Iterator<Int?> {
+        val iter = iterator<Int?> {
+            var n = 0
+            while (n <= end) {
+                yield(n++)
+            }
+            yield(null)
+        }
+        return iter
     }
 
     @Test
     fun buildSource() {
-        val channelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
-        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 2
-
-        val channelBuilder: ChannelBuilder = LocalChannelBuilder("${SinkTest.TEST_CLASS}->buildSource", channelArgs)
+        val iter = count(10)
         @SuppressWarnings("unused")
         val s = Source(
-            0,
-            "0",
-            listOf("1"),
-            1,
-            channelBuilder,
-            1,
-            RoundRobinPartitioner(2),
-            (fun(_): Any { return 1 })
-        )
+            UUID.randomUUID(),
+            "source",
+            emptyList(),
+            emptyList()
+        ) { iter.next() }
 
         assertTrue(true)
     }
 
     @Test
     fun run() {
+        val iter = count(10)
+        val source = Source(
+            UUID.randomUUID(),
+            "source",
+            emptyList(),
+            emptyList()
+        ) { iter.next() }
 
+        source.run()
+        assertTrue(true)
     }
 }

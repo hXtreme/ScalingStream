@@ -1,31 +1,29 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
+import java.util.*
 
 class Filter<InputType>(
-    idx: Int,
+    taskID: UUID,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    channelReaderManagerList: List<ChannelReaderManager<InputType>>,
+    channelWriterManagerList: List<ChannelWriterManager<InputType>>,
     operatorFn: (InputType) -> Boolean
-) : SingleInputOperator<InputType, InputType, Boolean, InputType>(
-    idx,
+) : SingleInputTask<InputType, InputType, Boolean, InputType>(
+    taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    channelReaderManagerList,
+    channelWriterManagerList,
     operatorFn
 ) {
-    override fun processRecordBatch(recordBatch: List<InputType>) {
-        partitioner.partitionBatch(
-            outputBuffers,
-            recordBatch.filter { record -> operatorFn(record) }
-        )
+    override fun processBatch(batch: List<InputType>) {
+        val processed = batch.filter(operatorFn)
+        channelWriterManagerList.forEach { it.put(processed) }
+        numProduced += processed.size
+    }
+
+    override fun processRecord(record: InputType): InputType {
+        error("Unused function, should not have been called.")
     }
 }

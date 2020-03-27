@@ -1,25 +1,21 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
+import java.util.*
+import kotlin.collections.HashMap
 
 class Reduce<KeyType, Type>(
-    idx: Int,
+    taskID: UUID,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    channelReaderManagerList: List<ChannelReaderManager<Pair<KeyType, Type>>>,
+    channelWriterManagerList: List<ChannelWriterManager<Type>>,
     operatorFn: (Pair<Type, Type>) -> Type
-) : SingleInputOperator<Pair<KeyType, Type>, Pair<Type, Type>, Type, Type>(
-    idx,
+) : SingleInputTask<Pair<KeyType, Type>, Pair<Type, Type>, Type, Type>(
+    taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    channelReaderManagerList,
+    channelWriterManagerList,
     operatorFn
 ) {
     private val state: HashMap<KeyType, Type> = HashMap()

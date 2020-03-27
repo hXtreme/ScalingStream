@@ -1,25 +1,20 @@
 package org.example.scalingstream.operator
 
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
+import java.util.*
 
 class KeyBy<InputType, KeyType>(
-    idx: Int,
+    taskID: UUID,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
+    channelReaderManagerList: List<ChannelReaderManager<InputType>>,
+    channelWriterManagerList: List<ChannelWriterManager<Pair<KeyType, InputType>>>,
     operatorFn: (InputType) -> KeyType
-) : SingleInputOperator<InputType, InputType, KeyType, Pair<KeyType, InputType>>(
-    idx,
+) : SingleInputTask<InputType, InputType, KeyType, Pair<KeyType, InputType>>(
+    taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    channelReaderManagerList,
+    channelWriterManagerList,
     operatorFn
 ) {
     override fun processRecord(record: InputType): Pair<KeyType, InputType> {

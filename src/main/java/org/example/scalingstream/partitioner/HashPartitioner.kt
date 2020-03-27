@@ -1,8 +1,11 @@
 package org.example.scalingstream.partitioner
 
 
-class HashPartitioner(numOut: Int) : Partitioner(numOut) {
-    override fun <Type> assignPartition(record: Type): Int {
+class HashPartitioner : Partitioner {
+    override val name: String = "HASH"
+
+    override fun <Type> assignPartition(record: Type, numOut: Int): Int {
+        if (numOut == 0) error("Can't partition into zero partitions.")
         return record.hashCode() % numOut
     }
 }

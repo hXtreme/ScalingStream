@@ -2,60 +2,50 @@ package org.example.scalingstream.operator
 
 import de.jupf.staticlog.Log
 import org.example.scalingstream.CONSTANTS
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.control.channel.ChannelReaderManager
+import org.example.scalingstream.control.channel.ChannelWriterManager
 import java.time.Instant
+import java.util.*
 
 
-class Source<OutputType>(
-    idx: Int,
+class Source<OutputType : Any>(
+    taskID: UUID,
     operatorID: String,
-    outOperatorIDs: List<String>,
-    upstreamCount: Int,
-    channelBuilder: ChannelBuilder,
-    batchSize: Int,
-    partitioner: Partitioner,
-    operatorFn: (Unit) -> OutputType
-) : SimpleOperator<Unit, OutputType>(
-    idx,
+    channelReaderManagerList: List<ChannelReaderManager<Unit>>,
+    channelWriterManagerList: List<ChannelWriterManager<OutputType>>,
+    operatorFn: (Unit) -> OutputType?
+) : AbstractTask<Unit, Unit, OutputType?, OutputType>(
+    taskID,
     operatorID,
-    outOperatorIDs,
-    upstreamCount,
-    channelBuilder,
-    batchSize,
-    partitioner,
+    emptyList(),
+    channelWriterManagerList,
     operatorFn
 ) {
+    private var batchSize = 1
 
     private var numBatches = 0
-    private val output = outOperatorIDs.map { channelBuilder.buildOutputChannel<OutputType>(it) }
-    private val outputBuffers = OutputBuffers<OutputType>(batchSize, output)
 
     override fun run() {
-        Log.info("Running $operatorID$idx")
-        Log.info("$operatorID --> $operatorID --> ${outOperatorIDs.joinToString()}")
-        output.forEach { it.connect() }
+        Log.info("Running source task.", toString())
+        val batches = generateSequence { operatorFn(Unit) }.chunked(batchSize)
 
-        var done = false
-
-        while (!done) {
-            val inp = (0 until batchSize).map { operatorFn(Unit) }.filter{it != null}
-            val recordBatch: List<OutputType>? = if (inp.isNotEmpty()) inp else null
-
-            outputBuffers.timestamp =
-                if (numBatches % CONSTANTS.TIMESTAMP_INTERVAL == 0) Instant.now()
-                else outputBuffers.timestamp
-            if (recordBatch == CONSTANTS.DONE_MARKER) {
-                done = true
-            } else {
-                partitioner.partitionBatch(outputBuffers, recordBatch) // TODO("Want to handle this via channel manager")
-                numProcessed += recordBatch.size
-                numBatches++
+        batches.forEach { batch ->
+            if (numBatches % CONSTANTS.TIMESTAMP_INTERVAL == 0) {
+                val timestamp = Instant.now()
+                channelWriterManagerList.forEach { it.timestamp = timestamp }
             }
+            numBatches++
+            channelWriterManagerList.forEach { it.put(batch) }
+            numProduced += batch.size
         }
-        Log.info("Processed $numProcessed records. Closing buffers and quitting $operatorID${idx}_")
-        outputBuffers.close()
+
+        Log.debug("Source generated $numProduced records.", toString())
+        Log.info("Closing buffers and quitting.", toString())
+        channelWriterManagerList.forEach { it.close() }
     }
 
-    override fun processRecordBatch(recordBatch: List<Unit>) = Unit
+    override fun processBatch(batch: List<Unit>) = Unit
+    override fun processRecord(record: Unit): OutputType {
+        error("Unused function, should not have been called.")
+    }
 }

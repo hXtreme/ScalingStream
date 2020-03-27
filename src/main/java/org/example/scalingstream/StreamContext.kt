@@ -2,10 +2,10 @@ package org.example.scalingstream
 
 import org.example.scalingstream.channels.*
 import org.example.scalingstream.stream.StreamBuilder
-import org.example.scalingstream.channels.LocalChannelConstants.TYPE as LOCAL_TYPE
+import org.example.scalingstream.channels.local.LocalChannelConstants.TYPE as LOCAL_TYPE
 import org.example.scalingstream.executor.Executor
 import org.example.scalingstream.operator.Source
-import org.example.scalingstream.partitioner.Partitioner
+import org.example.scalingstream.partitioner.PartitionerConstructor
 import org.example.scalingstream.partitioner.RoundRobinPartitioner
 import org.example.scalingstream.stream.Stream
 import java.util.*
@@ -16,7 +16,7 @@ class StreamContext(
     private val channelBuilder: ChannelBuilder,
     channelArgs: ChannelArgs,
     private val defaultBatchSize: Int = 1,
-    private val defaultPartitioner: (Int) -> Partitioner = ::RoundRobinPartitioner
+    private val defaultPartitioner: PartitionerConstructor = ::RoundRobinPartitioner
 ) {
     private val streamBuilder = StreamBuilder(channelBuilder)
 
@@ -28,12 +28,12 @@ class StreamContext(
         }
     }
 
-    fun <Type> createStream(
+    fun <Type: Any> createStream(
         name: String,
         batchSize: Int = defaultBatchSize,
         parallelism: Int = 1,
-        partitioner: (Int) -> Partitioner = defaultPartitioner,
-        generatorFn: (Unit) -> Type
+        partitioner: PartitionerConstructor = defaultPartitioner,
+        generatorFn: (Unit) -> Type?
     ): Stream<Unit, Type> {
         val executionNode = streamBuilder.addSource(name, ::Source, batchSize, parallelism, partitioner, generatorFn)
         return Stream(executionNode, batchSize, parallelism, partitioner)
