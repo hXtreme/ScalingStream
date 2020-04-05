@@ -9,7 +9,7 @@ repositories {
     jcenter()
 }
 
-group 'org.example'
+group 'page.parekh'
 version '1.0-SNAPSHOT'
 
 dependencies {
