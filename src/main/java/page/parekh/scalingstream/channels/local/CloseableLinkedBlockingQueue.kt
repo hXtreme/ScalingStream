@@ -1,4 +1,4 @@
-package org.example.scalingstream.channels.local
+package page.parekh.scalingstream.channels.local
 
 import de.jupf.staticlog.Log
 import java.util.concurrent.LinkedBlockingQueue

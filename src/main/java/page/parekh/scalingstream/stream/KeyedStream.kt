@@ -1,8 +1,8 @@
-package org.example.scalingstream.stream
+package page.parekh.scalingstream.stream
 
-import org.example.scalingstream.dag.Operator
-import org.example.scalingstream.operator.Reduce
-import org.example.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.dag.Operator
+import page.parekh.scalingstream.operator.Reduce
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
 
 class KeyedStream<Incoming, Key, Outgoing>(
     operator: Operator<Incoming, *, *, Pair<Key, Outgoing>>,

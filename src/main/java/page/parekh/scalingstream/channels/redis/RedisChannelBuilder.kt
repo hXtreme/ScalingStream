@@ -1,6 +1,6 @@
-package org.example.scalingstream.channels.redis
+package page.parekh.scalingstream.channels.redis
 
-import org.example.scalingstream.channels.*
+import page.parekh.scalingstream.channels.*
 
 
 object RedisChannelConstants {

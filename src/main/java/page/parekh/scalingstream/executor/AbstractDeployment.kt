@@ -1,6 +1,6 @@
-package org.example.scalingstream.executor
+package page.parekh.scalingstream.executor
 
-import org.example.scalingstream.operator.Task
+import page.parekh.scalingstream.operator.Task
 
 abstract class AbstractDeployment(createTask: () -> Task<*, *, *, *>) : Deployment {
 

@@ -1,9 +1,9 @@
-package org.example.scalingstream.control.channel
+package page.parekh.scalingstream.control.channel
 
-import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.channels.ChannelReader
-import org.example.scalingstream.channels.Record
-import org.example.scalingstream.extensions.*
+import page.parekh.scalingstream.channels.ChannelID
+import page.parekh.scalingstream.channels.ChannelReader
+import page.parekh.scalingstream.channels.Record
+import page.parekh.scalingstream.extensions.*
 
 abstract class ChannelReaderManager<Type> : ChannelIOManager<Type> {
     protected val channelReaderMap: MutableMap<ChannelID, ChannelReader<Type>> = mutableMapOf()

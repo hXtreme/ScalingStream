@@ -1,10 +1,10 @@
-package org.example.scalingstream.control.channel
+package page.parekh.scalingstream.control.channel
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.channels.ChannelWriter
-import org.example.scalingstream.channels.Record
-import org.example.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.channels.ChannelID
+import page.parekh.scalingstream.channels.ChannelWriter
+import page.parekh.scalingstream.channels.Record
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
 import java.time.Instant
 
 class BufferedChannelWriterManager<Type>(

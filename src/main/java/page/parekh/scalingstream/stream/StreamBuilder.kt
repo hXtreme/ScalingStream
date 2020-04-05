@@ -1,11 +1,11 @@
-package org.example.scalingstream.stream
+package page.parekh.scalingstream.stream
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.dag.Operator
-import org.example.scalingstream.executor.Executor
-import org.example.scalingstream.operator.TaskConstructor
-import org.example.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.channels.ChannelBuilder
+import page.parekh.scalingstream.dag.Operator
+import page.parekh.scalingstream.executor.Executor
+import page.parekh.scalingstream.operator.TaskConstructor
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
 import org.jgrapht.graph.DirectedAcyclicGraph
 
 typealias StreamExecutionDAG = DirectedAcyclicGraph<Operator<*, *, *, *>, ChannelManager<*>>

@@ -1,4 +1,4 @@
-package org.example.scalingstream.channels
+package page.parekh.scalingstream.channels
 
 
 enum class ChannelArg {

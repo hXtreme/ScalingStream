@@ -1,10 +1,10 @@
-package org.example.scalingstream.stream
+package page.parekh.scalingstream.stream
 
-import org.example.scalingstream.dag.Operator
-import org.example.scalingstream.operator.*
-import org.example.scalingstream.partitioner.Partitioner
-import org.example.scalingstream.partitioner.PartitionerConstructor
-import org.example.scalingstream.partitioner.RoundRobinPartitioner
+import page.parekh.scalingstream.dag.Operator
+import page.parekh.scalingstream.operator.*
+import page.parekh.scalingstream.partitioner.Partitioner
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.partitioner.RoundRobinPartitioner
 
 open class Stream<Incoming, Outgoing>(
     val operator: Operator<Incoming, *, *, Outgoing>,

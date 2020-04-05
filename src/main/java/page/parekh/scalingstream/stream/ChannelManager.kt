@@ -1,13 +1,13 @@
-package org.example.scalingstream.stream
+package page.parekh.scalingstream.stream
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.channels.*
-import org.example.scalingstream.control.channel.BufferedChannelWriterManager
-import org.example.scalingstream.control.channel.ChannelReaderManager
-import org.example.scalingstream.control.channel.ChannelReaderManagerImpl
-import org.example.scalingstream.control.channel.ChannelWriterManager
-import org.example.scalingstream.dag.Operator
-import org.example.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.channels.*
+import page.parekh.scalingstream.control.channel.BufferedChannelWriterManager
+import page.parekh.scalingstream.control.channel.ChannelReaderManager
+import page.parekh.scalingstream.control.channel.ChannelReaderManagerImpl
+import page.parekh.scalingstream.control.channel.ChannelWriterManager
+import page.parekh.scalingstream.dag.Operator
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
 import org.jgrapht.graph.DefaultEdge
 import java.util.*
 import kotlin.collections.HashMap

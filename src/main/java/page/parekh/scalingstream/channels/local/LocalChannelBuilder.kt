@@ -1,6 +1,6 @@
-package org.example.scalingstream.channels.local
+package page.parekh.scalingstream.channels.local
 
-import org.example.scalingstream.channels.*
+import page.parekh.scalingstream.channels.*
 
 
 object LocalChannelConstants {

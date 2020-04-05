@@ -1,3 +1,3 @@
-package org.example.scalingstream;
+package page.parekh.scalingstream;
 
 public class ScalingStream {}

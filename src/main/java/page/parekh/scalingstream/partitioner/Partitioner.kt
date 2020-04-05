@@ -1,4 +1,4 @@
-package org.example.scalingstream.partitioner
+package page.parekh.scalingstream.partitioner
 
 typealias PartitionerConstructor = () -> Partitioner
 

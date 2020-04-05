@@ -1,4 +1,4 @@
-package org.example.scalingstream.channels
+package page.parekh.scalingstream.channels
 
 abstract class ChannelReader<Type>(override val id: ChannelID) : ChannelIO {
     abstract val isClosed: Boolean

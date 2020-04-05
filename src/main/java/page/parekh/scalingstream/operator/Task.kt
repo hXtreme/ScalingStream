@@ -1,4 +1,4 @@
-package org.example.scalingstream.operator
+package page.parekh.scalingstream.operator
 
 import java.util.*
 

@@ -1,16 +1,16 @@
-package org.example.scalingstream.dag
+package page.parekh.scalingstream.dag
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.channels.Channel
-import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.control.channel.ChannelReaderManagerImpl
-import org.example.scalingstream.control.channel.BufferedChannelWriterManager
-import org.example.scalingstream.executor.DeployFn
-import org.example.scalingstream.executor.Deployment
-import org.example.scalingstream.operator.TaskConstructor
-import org.example.scalingstream.partitioner.PartitionerConstructor
-import org.example.scalingstream.stream.ChannelManager
-import org.example.scalingstream.stream.StreamBuilder
+import page.parekh.scalingstream.channels.Channel
+import page.parekh.scalingstream.channels.ChannelID
+import page.parekh.scalingstream.control.channel.ChannelReaderManagerImpl
+import page.parekh.scalingstream.control.channel.BufferedChannelWriterManager
+import page.parekh.scalingstream.executor.DeployFn
+import page.parekh.scalingstream.executor.Deployment
+import page.parekh.scalingstream.operator.TaskConstructor
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.stream.ChannelManager
+import page.parekh.scalingstream.stream.StreamBuilder
 import java.util.*
 import kotlin.collections.HashMap
 

@@ -1,13 +1,13 @@
-package org.example.scalingstream
+package page.parekh.scalingstream
 
-import org.example.scalingstream.channels.*
-import org.example.scalingstream.stream.StreamBuilder
-import org.example.scalingstream.channels.local.LocalChannelConstants.TYPE as LOCAL_TYPE
-import org.example.scalingstream.executor.Executor
-import org.example.scalingstream.operator.Source
-import org.example.scalingstream.partitioner.PartitionerConstructor
-import org.example.scalingstream.partitioner.RoundRobinPartitioner
-import org.example.scalingstream.stream.Stream
+import page.parekh.scalingstream.channels.*
+import page.parekh.scalingstream.stream.StreamBuilder
+import page.parekh.scalingstream.channels.local.LocalChannelConstants.TYPE as LOCAL_TYPE
+import page.parekh.scalingstream.executor.Executor
+import page.parekh.scalingstream.operator.Source
+import page.parekh.scalingstream.partitioner.PartitionerConstructor
+import page.parekh.scalingstream.partitioner.RoundRobinPartitioner
+import page.parekh.scalingstream.stream.Stream
 import java.util.*
 import kotlin.collections.HashMap
 

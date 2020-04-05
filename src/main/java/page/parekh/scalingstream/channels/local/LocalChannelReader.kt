@@ -1,9 +1,9 @@
-package org.example.scalingstream.channels.local
+package page.parekh.scalingstream.channels.local
 
-import org.example.scalingstream.channels.ChannelArg
-import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.channels.ChannelReader
-import org.example.scalingstream.channels.Record
+import page.parekh.scalingstream.channels.ChannelArg
+import page.parekh.scalingstream.channels.ChannelID
+import page.parekh.scalingstream.channels.ChannelReader
+import page.parekh.scalingstream.channels.Record
 import java.util.*
 
 class LocalChannelReader<Type>(

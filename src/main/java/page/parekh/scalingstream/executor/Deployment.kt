@@ -1,6 +1,6 @@
-package org.example.scalingstream.executor
+package page.parekh.scalingstream.executor
 
-import org.example.scalingstream.operator.Task
+import page.parekh.scalingstream.operator.Task
 
 
 interface Deployment : Task<Any, Any, Any, Any> {

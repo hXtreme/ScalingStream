@@ -1,9 +1,9 @@
-package org.example.scalingstream.operator
+package page.parekh.scalingstream.operator
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.control.channel.ChannelReaderManager
-import org.example.scalingstream.control.channel.ChannelWriterManager
-import org.example.scalingstream.extensions.*
+import page.parekh.scalingstream.control.channel.ChannelReaderManager
+import page.parekh.scalingstream.control.channel.ChannelWriterManager
+import page.parekh.scalingstream.extensions.*
 import java.util.*
 
 typealias SingleInputSimpleTask<InputType, OutputType> =

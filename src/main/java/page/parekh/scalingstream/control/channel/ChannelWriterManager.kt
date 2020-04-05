@@ -1,9 +1,9 @@
-package org.example.scalingstream.control.channel
+package page.parekh.scalingstream.control.channel
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.channels.ChannelID
-import org.example.scalingstream.channels.ChannelWriter
-import org.example.scalingstream.partitioner.Partitioner
+import page.parekh.scalingstream.channels.ChannelID
+import page.parekh.scalingstream.channels.ChannelWriter
+import page.parekh.scalingstream.partitioner.Partitioner
 import java.time.Instant
 
 abstract class ChannelWriterManager<Type>(val partitioner: Partitioner) : ChannelIOManager<Type> {

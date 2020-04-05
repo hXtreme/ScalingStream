@@ -1,6 +1,6 @@
-package org.example.scalingstream.channels.jiffy
+package page.parekh.scalingstream.channels.jiffy
 
-import org.example.scalingstream.channels.*
+import page.parekh.scalingstream.channels.*
 import java.time.Instant
 
 class JiffyChannelWriter<Type>(

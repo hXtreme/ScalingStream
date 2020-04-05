@@ -1,4 +1,4 @@
-package org.example.scalingstream.partitioner
+package page.parekh.scalingstream.partitioner
 
 class RoundRobinPartitioner : Partitioner {
     override val name: String = "ROUND_ROBIN"

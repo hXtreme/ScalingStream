@@ -1,4 +1,4 @@
-package org.example.scalingstream.control.channel
+package page.parekh.scalingstream.control.channel
 
 class ChannelReaderManagerImpl<Type> : ChannelReaderManager<Type>() {
     override val isNotClosed: Boolean

@@ -1,6 +1,6 @@
-package org.example.scalingstream.channels
+package page.parekh.scalingstream.channels
 
-import org.example.scalingstream.channels.local.LocalChannelBuilder
+import page.parekh.scalingstream.channels.local.LocalChannelBuilder
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import java.time.Instant

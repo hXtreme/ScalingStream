@@ -1,7 +1,7 @@
-package org.example.scalingstream.operator
+package page.parekh.scalingstream.operator
 
-import org.example.scalingstream.control.channel.ChannelReaderManager
-import org.example.scalingstream.control.channel.ChannelWriterManager
+import page.parekh.scalingstream.control.channel.ChannelReaderManager
+import page.parekh.scalingstream.control.channel.ChannelWriterManager
 import java.util.*
 import kotlin.collections.HashMap
 

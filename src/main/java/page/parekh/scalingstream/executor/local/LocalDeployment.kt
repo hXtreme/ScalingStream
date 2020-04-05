@@ -1,7 +1,7 @@
-package org.example.scalingstream.executor.local
+package page.parekh.scalingstream.executor.local
 
-import org.example.scalingstream.executor.AbstractDeployment
-import org.example.scalingstream.operator.Task
+import page.parekh.scalingstream.executor.AbstractDeployment
+import page.parekh.scalingstream.operator.Task
 import java.util.*
 
 class LocalDeployment(

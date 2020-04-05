@@ -1,6 +1,6 @@
-package org.example.scalingstream.channels.jiffy
+package page.parekh.scalingstream.channels.jiffy
 
-import org.example.scalingstream.channels.*
+import page.parekh.scalingstream.channels.*
 
 class JiffyChannel<Type>(id: ChannelID, channelArgs: ChannelArgs) : AbstractChannel<Type>(id, channelArgs) {
     override val type: String = "JIFFY"

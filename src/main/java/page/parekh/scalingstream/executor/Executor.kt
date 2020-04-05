@@ -1,8 +1,8 @@
-package org.example.scalingstream.executor
+package page.parekh.scalingstream.executor
 
-import org.example.scalingstream.dag.Operator
-import org.example.scalingstream.operator.Task
-import org.example.scalingstream.stream.StreamExecutionDAG
+import page.parekh.scalingstream.dag.Operator
+import page.parekh.scalingstream.operator.Task
+import page.parekh.scalingstream.stream.StreamExecutionDAG
 
 typealias DeployFn = (Operator<*, *, *, *>, () -> Task<*, *, *, *>) -> Deployment
 

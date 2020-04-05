@@ -1,4 +1,4 @@
-package org.example.scalingstream.extensions
+package page.parekh.scalingstream.extensions
 
 fun <T> Iterator<T>.find(predicate: (T) -> Boolean) : T? {
     while (hasNext()) {

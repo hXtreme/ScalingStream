@@ -1,10 +1,10 @@
-package org.example.scalingstream.executor.local
+package page.parekh.scalingstream.executor.local
 
 import de.jupf.staticlog.Log
-import org.example.scalingstream.dag.Operator
-import org.example.scalingstream.executor.*
-import org.example.scalingstream.operator.Task
-import org.example.scalingstream.stream.StreamExecutionDAG
+import page.parekh.scalingstream.dag.Operator
+import page.parekh.scalingstream.executor.*
+import page.parekh.scalingstream.operator.Task
+import page.parekh.scalingstream.stream.StreamExecutionDAG
 
 class LocalExecutor : Executor {
 

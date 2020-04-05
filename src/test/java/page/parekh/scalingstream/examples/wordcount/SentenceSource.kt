@@ -1,14 +1,14 @@
-package org.example.scalingstream.examples.wordcount
+package page.parekh.scalingstream.examples.wordcount
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
-import org.example.scalingstream.StreamContext
-import org.example.scalingstream.channels.ChannelArg
-import org.example.scalingstream.channels.ChannelBuilder
-import org.example.scalingstream.channels.Record
-import org.example.scalingstream.channels.local.LocalChannelBuilder
-import org.example.scalingstream.executor.Executor
-import org.example.scalingstream.executor.local.LocalExecutor
+import page.parekh.scalingstream.StreamContext
+import page.parekh.scalingstream.channels.ChannelArg
+import page.parekh.scalingstream.channels.ChannelBuilder
+import page.parekh.scalingstream.channels.Record
+import page.parekh.scalingstream.channels.local.LocalChannelBuilder
+import page.parekh.scalingstream.executor.Executor
+import page.parekh.scalingstream.executor.local.LocalExecutor
 import java.io.File
 import java.time.Duration
 import java.util.*
