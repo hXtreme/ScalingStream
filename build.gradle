@@ -22,6 +22,8 @@ dependencies {
     compile 'io.github.jupf.staticlog:staticlog:2.2.0'
 
     compile 'org.jgrapht:jgrapht-core:1.4.0'
+    // https://mvnrepository.com/artifact/org.apache.avro/avro
+    compile group: 'org.apache.avro', name: 'avro', version: '1.9.2'
 }
 
 sourceCompatibility = "11.0.5"
