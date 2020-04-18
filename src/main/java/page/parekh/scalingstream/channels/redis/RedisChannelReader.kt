@@ -25,12 +25,13 @@ class RedisChannelReader<Type>(
         get() = jedis.llen("$id") == 0L
 
     override fun peek(): Record<Type>? {
+        if (isEmpty) return null
         return deserializeFromString(jedis.lrange("$id", 0, 0)[0])
     }
 
     override fun get(): Record<Type> {
         if (isClosed && isEmpty) error("Can't read from an empty closed channel.")
-        return deserializeFromString(jedis.blpop(0, "$id")[0])
+        return deserializeFromString(jedis.blpop(0, "$id")[1])
     }
 
     override fun close() {
