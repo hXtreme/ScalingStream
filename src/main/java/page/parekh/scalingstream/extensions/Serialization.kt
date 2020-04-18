@@ -3,14 +3,32 @@ package page.parekh.scalingstream.extensions
 import org.apache.avro.util.ByteBufferInputStream
 import java.io.*
 import java.nio.ByteBuffer
+import java.util.*
 
-fun <T : Serializable> serialize(obj: T): ByteBuffer {
+fun Serializable.serialize() : ByteArray {
     val byteStream = ByteArrayOutputStream()
-    ObjectOutputStream(byteStream).writeObject(obj)
-    return ByteBuffer.wrap(byteStream.toByteArray())
+    ObjectOutputStream(byteStream).writeObject(this)
+    return byteStream.toByteArray()
 }
 
-fun <T : Serializable> deserialize(byteBuff: ByteBuffer): T {
+fun <T: Serializable> deserialize(byteArray: ByteArray): T {
+    return ObjectInputStream(ByteArrayInputStream(byteArray)).readObject() as? T
+        ?: error("Serialized Object could not be cast into the specified type.")
+}
+
+fun Serializable.serializeToString(): String {
+    return Base64.getEncoder().encodeToString(this.serialize())
+}
+
+fun <T: Serializable> deserializeFromString(string: String): T {
+    return deserialize(Base64.getDecoder().decode(string))
+}
+
+fun Serializable.serializeToByteBuffer(): ByteBuffer {
+    return ByteBuffer.wrap(this.serialize())
+}
+
+fun <T : Serializable> deserializeFromByteBuffer(byteBuff: ByteBuffer): T {
     val byteStream = ByteBufferInputStream(listOf(byteBuff))
     return ObjectInputStream(byteStream).readObject() as? T
         ?: error("Serialized Object could not be cast into the given type.")
