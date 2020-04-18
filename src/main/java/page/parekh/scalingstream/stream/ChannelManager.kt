@@ -18,7 +18,8 @@ class ChannelManager<Type>(
     val batchSize: Int,
     val partitionerConstructor: PartitionerConstructor
 ) : DefaultEdge() {
-    val channels: MutableMap<ChannelID, Channel<Type>> = HashMap()
+    var channels: MutableMap<ChannelID, Channel<Type>> = HashMap()
+        private set
     private val channelWriterManagers: MutableMap<UUID, ChannelWriterManager<Type>> = HashMap()
     private val channelReaderManagers: MutableMap<UUID, ChannelReaderManager<Type>> = HashMap()
 
@@ -56,6 +57,7 @@ class ChannelManager<Type>(
     fun destroy() {
         // TODO("Not yet implemented")
         channels.keys.forEach { destroy(it) }
+        channels = mutableMapOf()
     }
 
     fun destroy(id: ChannelID) {
@@ -63,7 +65,7 @@ class ChannelManager<Type>(
          * 1. Stop Writer
          * 2. Remove Writer
          */
-        val channel = channels.remove(id)
+        val channel = channels[id]
         channelWriterManagers.remove(id.src)?.closeChannel(id) ?: Log.warn("Ideally we'd want two functions destroy and remove.")
     }
 
