@@ -2,14 +2,10 @@ package page.parekh.scalingstream.executor.rpc
 
 import de.jupf.staticlog.Log
 import org.apache.thrift.protocol.TBinaryProtocol
-import org.apache.thrift.transport.TSocket
-import org.apache.thrift.transport.TTransportException
-import page.parekh.scalingstream.executor.AbstractDeployment
-import page.parekh.scalingstream.executor.Deployment.TaskState
-import page.parekh.scalingstream.extensions.deserialize
+import org.apache.thrift.transport.*
+import page.parekh.scalingstream.executor.*
 import page.parekh.scalingstream.extensions.deserializeFromByteBuffer
 import page.parekh.scalingstream.taskrpc.TaskRPC
-import java.lang.Exception
 import java.util.*
 
 class RPCDeployment(
@@ -27,7 +23,7 @@ class RPCDeployment(
             try {
                 transport.open()
             } catch (e: TTransportException) {
-                Log.error("Failed to connect to deployed task, retrying...")
+                Log.warn("Failed to connect to deployed task, retrying...", name)
                 Thread.sleep(100)
             }
         }
