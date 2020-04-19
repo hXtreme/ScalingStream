@@ -22,8 +22,15 @@ class Sink<InputType>(
     operatorFn
 ) {
 
+    override var isDone: Boolean = false
+        private set
+
+    override var isRunning: Boolean = false
+        private set
+
     override fun run() {
         Log.info("Running sink task", toString())
+        isRunning = true
 
         while (channelReaderManagerList.any { !it.isClosed }) {
             if (channelReaderManagerList.all { it.isEmpty }) Thread.sleep(100)
@@ -42,6 +49,8 @@ class Sink<InputType>(
         Log.debug("Processed $numConsumed records.", toString())
         Log.info("Closing buffers and quitting.", toString())
         channelReaderManagerList.forEach { it.close() }
+        isDone = true
+        isRunning = false
     }
 
     override fun processBatch(batch: List<InputType>) {

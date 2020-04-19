@@ -13,7 +13,9 @@ interface Task<InputType, FnInp, FnOut, OutputType> : Runnable {
      * Human-friendly name for this [Task]
      */
     val name: String
-        get() = "$operatorID-${taskID.toString().substring(0, 5)}"
+        get() {
+            return "$operatorID-${taskID.toString().substring(0, 5)}"
+        }
 
     /**
      * The number of records consumed by this task.
@@ -24,6 +26,16 @@ interface Task<InputType, FnInp, FnOut, OutputType> : Runnable {
      * The number of records produced by this task.
      */
     val numProduced: Int
+
+    /**
+     * Is this Task done running?
+     */
+    val isDone: Boolean
+
+    /**
+     * Is this Task running?
+     */
+    val isRunning: Boolean
 
     /**
      * Run the [Task]
