@@ -10,7 +10,16 @@ import page.parekh.scalingstream.channels.redis.RedisChannelBuilder
 import page.parekh.scalingstream.executor.Executor
 import page.parekh.scalingstream.executor.rpc.RPCExecutor
 
-internal class Count(private val start: Int = 0, private val end: Int = Int.MAX_VALUE) {
+internal class Count(
+    executor: Executor,
+    channelBuilder: (ChannelArgs) -> ChannelBuilder,
+    channelArgs: ChannelArgs,
+    batchSize: Int = 5,
+    parallelism: Int = 3,
+    private val start: Int = 0,
+    private val end: Int = Int.MAX_VALUE,
+    printing: Boolean = false
+) {
     private var n = start
 
     @Synchronized
@@ -18,25 +27,19 @@ internal class Count(private val start: Int = 0, private val end: Int = Int.MAX_
         return if (n <= end) n++ else null
     }
 
-    fun run(
-        executor: Executor,
-        channelBuilder: (ChannelArgs) -> ChannelBuilder,
-        channelArgs: ChannelArgs,
-        batchSize: Int = 5,
-        parallelism: Int = 3,
-        printing: Boolean = false
-    ) {
-        val context = StreamContext(executor, channelBuilder(channelArgs), channelArgs, batchSize)
-        val counter = this
+    private val context: StreamContext = StreamContext(executor, channelBuilder(channelArgs), channelArgs, batchSize)
 
-        with(context.createStream("count", parallelism = parallelism) { counter.generator() }) {
+    init {
+        with(context.createStream("count", parallelism = parallelism) { generator() }) {
             if (printing) {
                 this.print()
             } else {
                 this.drop()
             }
         }
+    }
 
+    fun run() {
         Log.info("Running Count")
         context.run()
         Log.info("Finished running Count.")
@@ -47,6 +50,6 @@ fun main() {
     Log.logLevel = LogLevel.WARN
     val channelArgs: MutableMap<ChannelArg, Any> =
         mutableMapOf(Pair(ChannelArg.REDIS_HOST, "localhost"), Pair(ChannelArg.REDIS_PORT, 6379))
-    val count = Count(0, 100)
-    count.run(RPCExecutor(), ::RedisChannelBuilder, channelArgs, 50, printing = false)
+    val count = Count(RPCExecutor(), ::RedisChannelBuilder, channelArgs, 50, end = 100, printing = false)
+    count.run()
 }

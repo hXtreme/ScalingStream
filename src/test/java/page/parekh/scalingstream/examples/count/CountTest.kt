@@ -22,31 +22,34 @@ internal class CountTest() {
     fun localExecutionWithRedisChannel() {
         val channelArgs: MutableMap<ChannelArg, Any> =
             mutableMapOf(Pair(ChannelArg.REDIS_HOST, "localhost"), Pair(ChannelArg.REDIS_PORT, 6379))
-        val count = Count(0, 100)
-        count.run(LocalExecutor(), ::RedisChannelBuilder, channelArgs, 5, printing = true)
+        val count =
+            Count(LocalExecutor(), ::RedisChannelBuilder, channelArgs, batchSize = 5, end = 100, printing = true)
+        count.run()
     }
 
     @Test
     fun localExecutionWithLocalChannel() {
         val channelArgs: MutableMap<ChannelArg, Any> =
             mutableMapOf(Pair(ChannelArg.LOCAL_QUEUE_DICT, HashMap<String, Queue<Record<Any>>>()))
-        val count = Count(0, 100)
-        count.run(LocalExecutor(), ::LocalChannelBuilder, channelArgs, 5, printing = false)
+        val count =
+            Count(LocalExecutor(), ::LocalChannelBuilder, channelArgs, batchSize = 5, end = 100, printing = false)
+        count.run()
     }
 
     @Test
     fun rpcExecutionWithRedisChannel() {
         val channelArgs: MutableMap<ChannelArg, Any> =
             mutableMapOf(Pair(ChannelArg.REDIS_HOST, "localhost"), Pair(ChannelArg.REDIS_PORT, 6379))
-        val count = Count(0, 100000)
-        count.run(RPCExecutor(), ::RedisChannelBuilder, channelArgs, 5, printing = true)
+        val count =
+            Count(RPCExecutor(), ::RedisChannelBuilder, channelArgs, batchSize = 5, end = 100000, printing = true)
+        count.run()
     }
 
     @Test
     fun rpcExecutionWithLocalChannel() {
         val channelArgs: MutableMap<ChannelArg, Any> =
             mutableMapOf(Pair(ChannelArg.LOCAL_QUEUE_DICT, HashMap<String, Queue<Record<Any>>>()))
-        val count = Count(0, 100)
-        count.run(RPCExecutor(), ::LocalChannelBuilder, channelArgs, 5, printing = false)
+        val count = Count(RPCExecutor(), ::LocalChannelBuilder, channelArgs, batchSize = 5, end = 100, printing = false)
+        count.run()
     }
 }
