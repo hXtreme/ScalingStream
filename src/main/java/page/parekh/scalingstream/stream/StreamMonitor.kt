@@ -1,23 +1,39 @@
-package org.example.scalingstream.stream
+package page.parekh.scalingstream.stream
 
-import org.example.scalingstream.dag.Operator
+import com.google.gson.Gson
+import de.jupf.staticlog.Log
+import page.parekh.scalingstream.executor.TaskState
 import java.time.Instant
+import java.util.*
 
-class StreamMonitor(val streamDAG: StreamExecutionDAG) {
-    data class TaskStat()
-    data class OperatorStat(val name: String, val parallelism: Int, val taskStats: List<TaskStat>)
+class StreamMonitor(val streamDAG: StreamExecutionDAG) : Runnable {
+    val gson = Gson()
+
+    data class OperatorStat(
+        val name: String,
+        val parallelism: Int,
+        val taskStats: List<Pair<UUID, TaskState>>
+    )
+
+    /**
+     * Stats for channels.
+     */
     data class StreamStat(val timestamp: Instant)
 
-    private var lastChecked: Instant = Instant.now()
-
-    fun updateStats() {
-        val timestamp = Instant.now()
-        val operatorStatsList = streamDAG.map { operator -> getStats(operator) }
-    }
-
-    private fun getStats(operator: Operator<*, *, *, *>) {
-        val name = operator.name
-        val parallelism = operator.parallelism
-        val (numConsumed, numProduced) = operator.deployedTasks.map { (k, v) -> Pair(Pair(k, v.numConsumed), Pair(k, v.numProduced))}.unzip()
+    override fun run() {
+        while (true) {
+            val operatorStats = streamDAG.map { operator ->
+                OperatorStat(
+                    name = operator.name,
+                    parallelism = operator.parallelism,
+                    taskStats = operator.deployedTasks.map { (taskID, deployment) ->
+                        Pair(taskID, deployment.state())
+                    }
+                )
+            }
+            val json = gson.toJson(operatorStats)
+            println("OperatorStats\t$json")
+            Thread.sleep(500)
+        }
     }
 }
