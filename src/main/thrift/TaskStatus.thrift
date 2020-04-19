@@ -14,4 +14,3 @@ struct TaskState {
     4: i32 numConsumed,
     5: i32 numProduced,
 }
-
