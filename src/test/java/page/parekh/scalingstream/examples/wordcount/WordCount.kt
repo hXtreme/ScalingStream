@@ -9,6 +9,7 @@ import page.parekh.scalingstream.channels.local.LocalChannelBuilder
 import page.parekh.scalingstream.channels.redis.RedisChannelBuilder
 import page.parekh.scalingstream.executor.Executor
 import page.parekh.scalingstream.executor.local.LocalExecutor
+import page.parekh.scalingstream.executor.rpc.RPCExecutor
 import page.parekh.scalingstream.partitioner.HashPartitioner
 import page.parekh.scalingstream.stream.Stream
 import java.io.File
@@ -19,37 +20,36 @@ import kotlin.collections.HashMap
 private const val NAME = "WordCount"
 
 class WordCount(
-    private val sentences: SentenceSource,
-    batchSize: Int = 4,
-    heavyHitterThreshold: Int = 1000,
+    private val sentenceSource: SentenceSource,
+    executor: Executor,
+    channelBuilder: (ChannelArgs) -> ChannelBuilder,
     channelArgs: ChannelArgs,
-    channelBuilder: (ChannelArgs) -> ChannelBuilder = ::LocalChannelBuilder
+    batchSize: Int = 4,
+    parallelism: Int = 5,
+    printing: Boolean = false
 ) {
-    private val words: Stream<Unit, String>
+    private val sentences: Stream<Unit, String>
     private val context: StreamContext
 
     init {
-        val executor: Executor = LocalExecutor()
-        val id = Pair(UUID.randomUUID(), UUID.randomUUID())
-
-
         val cb = channelBuilder(channelArgs)
         context = StreamContext(executor, cb, channelArgs, batchSize, ::HashPartitioner)
 
-        words = context.createStream(NAME) { sentences.generator() }
-//        words.print()
-        val count = words.flatMap {
-            it.split(Regex("\\s"))
-                .map { s -> Pair(s, 1) }
-        }
+        sentences = context.createStream(NAME, parallelism = parallelism) { sentenceSource.generator() }
+        val wordCount = sentences
+            .flatMap {
+                it.split(Regex("\\s"))
+                    .map { s -> Pair(s, 1) }
+            }
             .keyBy { it.first }
             .reduce { (k, v1), (_, v2) -> Pair(k, v1 + v2) }
 
-//        count.filter { (_, v) -> v > 50 }//.drop()
-        count.filter { (k, v) -> v > heavyHitterThreshold && k !in setOf("ut", "#", "") }
-            .map { (k, v) -> "Heavy Hitter($v): $k" }.print()
-        count.filter { (_, v) -> v < heavyHitterThreshold }//.print()
-            .drop()
+        with(wordCount) {
+            if (printing)
+                this.print()
+            else
+                this.drop()
+        }
     }
 
     fun run() {
@@ -68,25 +68,59 @@ internal class WordCountTest() {
         Log.logLevel = LogLevel.ERROR
     }
 
-    @Test
-    fun wordCountTestWithRedisChannel() {
-        val channelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.REDIS_HOST] = "localhost"
-        channelArgs[ChannelArg.REDIS_PORT] = 6379
-
+    fun runWordCountTest(
+        executor: Executor,
+        channelBuilder: (ChannelArgs) -> ChannelBuilder,
+        channelArgs: ChannelArgs,
+        batchSize: Int = 5,
+        parallelism: Int = 3,
+        printing: Boolean = false,
+        numRecords: Int = this.numRecords,
+        sentenceLength: Int = this.sentenceLength
+    ) {
         val sentenceSource = SentenceSource(file, numRecords, sentenceLength)
-        val wordCount = WordCount(sentenceSource, 50, threshold, channelArgs, ::RedisChannelBuilder)
+        val wordCount = WordCount(sentenceSource, executor, channelBuilder, channelArgs, batchSize, parallelism, printing)
+
         wordCount.run()
     }
 
     @Test
-    fun wordCountTestWithLocalChannel() {
-        val channelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
-        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 10
+    fun rpcExecutionWithRedisChannel() {
+        val channelArgs = mutableMapOf<ChannelArg, Any>(
+            Pair(ChannelArg.REDIS_HOST, "localhost"),
+            Pair(ChannelArg.REDIS_PORT, 6379)
+        )
 
-        val sentenceSource = SentenceSource(file, numRecords, sentenceLength)
-        val wordCount = WordCount(sentenceSource, 50, threshold, channelArgs, ::LocalChannelBuilder)
-        wordCount.run()
+        runWordCountTest(RPCExecutor(), ::RedisChannelBuilder, channelArgs, 50, 4)
+    }
+
+    @Test
+    fun localExecutionWithRedisChannel() {
+        val channelArgs = mutableMapOf<ChannelArg, Any>(
+            Pair(ChannelArg.REDIS_HOST, "localhost"),
+            Pair(ChannelArg.REDIS_PORT, 6379)
+        )
+
+        runWordCountTest(LocalExecutor(), ::RedisChannelBuilder, channelArgs, 50, 4)
+    }
+
+    @Test
+    fun rpcExecutionWithLocalChannel() {
+        val channelArgs = mutableMapOf<ChannelArg, Any>(
+            Pair(ChannelArg.LOCAL_QUEUE_DICT, HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()),
+            Pair(ChannelArg.MAX_QUEUE_LEN, 50)
+        )
+
+        runWordCountTest(RPCExecutor(), ::LocalChannelBuilder, channelArgs, 50, 4)
+    }
+
+    @Test
+    fun localExecutionWithLocalChannel() {
+        val channelArgs = mutableMapOf<ChannelArg, Any>(
+            Pair(ChannelArg.LOCAL_QUEUE_DICT, HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()),
+            Pair(ChannelArg.MAX_QUEUE_LEN, 50)
+        )
+
+        runWordCountTest(LocalExecutor(), ::LocalChannelBuilder, channelArgs, 50, 4)
     }
 }

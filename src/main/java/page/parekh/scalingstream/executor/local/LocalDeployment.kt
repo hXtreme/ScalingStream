@@ -6,21 +6,22 @@ import java.util.*
 
 class LocalDeployment(
     createTask: () -> Task<*, *, *, *>
-) : AbstractDeployment(createTask) {
+) : AbstractDeployment() {
     private val task: Task<*, *, *, *> = createTask()
-    private val thread: Thread
+    private val thread = Thread(task, name)
 
-    override var isDone: Boolean = false
-        private set
+    override val isRunning: Boolean
+        get() = task.isRunning
+
+    override val isDone: Boolean
+        get() = task.isDone
 
     init {
-        thread = Thread(task, name)
         thread.start()
     }
 
     override fun join() {
         thread.join()
-        isDone = true
     }
 
     override val taskID: UUID

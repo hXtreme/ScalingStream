@@ -25,8 +25,15 @@ class Source<OutputType : Any>(
 
     private var numBatches = 0
 
+    override var isDone: Boolean = false
+        private set
+
+    override var isRunning: Boolean = false
+        private set
+
     override fun run() {
         Log.info("Running source task.", toString())
+        isRunning = true
         val batches = generateSequence { operatorFn(Unit) }.chunked(batchSize)
 
         batches.forEach { batch ->
@@ -42,6 +49,8 @@ class Source<OutputType : Any>(
         Log.debug("Source generated $numProduced records.", toString())
         Log.info("Closing buffers and quitting.", toString())
         channelWriterManagerList.forEach { it.close() }
+        isDone = true
+        isRunning = false
     }
 
     override fun processBatch(batch: List<Unit>) = Unit

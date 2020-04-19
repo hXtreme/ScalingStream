@@ -22,14 +22,22 @@ abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
     channelWriterManagerList,
     operatorFn
 ) {
+
+    final override var isDone: Boolean = false
+        private set
+
+    final override var isRunning: Boolean = false
+        private set
+
     override fun run() {
         Log.info("Running task.", name)
+        isRunning = true
         while (channelReaderManagerList.any { !it.isClosed }) {
             if (channelReaderManagerList.all { it.isEmpty }) Thread.sleep(100)
             while (channelReaderManagerList.any { it.isNotEmpty }) {
                 val selectedChannelReaderManager =
-                    (inputChannelManagers.take(channelReaderManagerList.size).find { it.isNotEmpty })!!
-                        //?: inputChannelManagers.first()
+                    inputChannelManagers.take(channelReaderManagerList.size).find { it.isNotEmpty }!!
+
                 val (timestamp, batch) = selectedChannelReaderManager.get()
 
                 channelWriterManagerList.forEach { it.timestamp = timestamp }
@@ -43,5 +51,7 @@ abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
         Log.info("Closing buffers and quitting.", name)
         channelReaderManagerList.forEach { it.close() }
         channelWriterManagerList.forEach { it.close() }
+        isDone = true
+        isRunning = false
     }
 }
