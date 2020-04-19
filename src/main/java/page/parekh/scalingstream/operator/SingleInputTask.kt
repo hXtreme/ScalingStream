@@ -25,6 +25,7 @@ abstract class SingleInputTask<InputType, FnInp, FnOut, OutputType>(
     override fun run() {
         Log.info("Running task.", name)
         while (channelReaderManagerList.any { !it.isClosed }) {
+            if (channelReaderManagerList.all { it.isEmpty }) Thread.sleep(100)
             while (channelReaderManagerList.any { it.isNotEmpty }) {
                 val selectedChannelReaderManager =
                     (inputChannelManagers.take(channelReaderManagerList.size).find { it.isNotEmpty })!!

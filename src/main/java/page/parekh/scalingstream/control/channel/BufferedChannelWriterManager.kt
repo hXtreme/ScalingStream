@@ -32,8 +32,12 @@ class BufferedChannelWriterManager<Type>(
         val channels = channelIDs
 
         batch
-            .groupBy { channels[partitioner.assignPartition(it, channels.size)] }
-            .forEach { (id, records) -> buffers.getOrPut(id, ::mutableListOf).addAll(records) }
+            .groupBy {
+                channels[partitioner.assignPartition(it, channels.size)]
+            }
+            .forEach { (id, records) ->
+                buffers.getOrPut(id, ::mutableListOf).addAll(records)
+            }
 
         buffers.filterValues { v -> (v.size >= batchSize) }.keys.forEach { flushBuffer(it) }
     }
