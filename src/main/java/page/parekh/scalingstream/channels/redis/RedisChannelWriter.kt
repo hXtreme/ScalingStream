@@ -1,6 +1,8 @@
 package page.parekh.scalingstream.channels.redis
 
 import page.parekh.scalingstream.channels.*
+import page.parekh.scalingstream.extensions.*
+import redis.clients.jedis.Jedis
 import java.time.Instant
 
 class RedisChannelWriter<Type>(
@@ -12,19 +14,19 @@ class RedisChannelWriter<Type>(
     private val port: Int = channelArgs.getOrDefault(ChannelArg.REDIS_PORT, 6379) as Int
     private val db: Int = channelArgs.getOrDefault(ChannelArg.REDIS_DB, 0) as Int
 
-    override fun connect() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    private val jedis = Jedis(host, port)
 
     override fun put(recordBatch: Record<Type>) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun flush() {
-        // Do nothing
+        val serializedBatch = recordBatch.serializeToString()
+        jedis.rpush("$id", serializedBatch)
     }
 
     override fun close(timestamp: Instant?) {
-        TODO("Not yet implemented")
+        jedis.set("$id-status", "closed")
+        jedis.close()
     }
+
+    override fun flush() {}
+
+    override fun connect() {}
 }

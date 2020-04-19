@@ -2,10 +2,11 @@ package page.parekh.scalingstream.examples.wordcount
 
 import de.jupf.staticlog.Log
 import de.jupf.staticlog.core.LogLevel
+import org.junit.jupiter.api.Test
 import page.parekh.scalingstream.StreamContext
-import page.parekh.scalingstream.channels.ChannelBuilder
-import page.parekh.scalingstream.channels.ChannelArg
+import page.parekh.scalingstream.channels.*
 import page.parekh.scalingstream.channels.local.LocalChannelBuilder
+import page.parekh.scalingstream.channels.redis.RedisChannelBuilder
 import page.parekh.scalingstream.executor.Executor
 import page.parekh.scalingstream.executor.local.LocalExecutor
 import page.parekh.scalingstream.partitioner.HashPartitioner
@@ -17,20 +18,23 @@ import kotlin.collections.HashMap
 
 private const val NAME = "WordCount"
 
-class WordCount(private val sentences: SentenceSource, batchSize: Int = 4, heavyHitterThreshold: Int = 1000) {
+class WordCount(
+    private val sentences: SentenceSource,
+    batchSize: Int = 4,
+    heavyHitterThreshold: Int = 1000,
+    channelArgs: ChannelArgs,
+    channelBuilder: (ChannelArgs) -> ChannelBuilder = ::LocalChannelBuilder
+) {
     private val words: Stream<Unit, String>
     private val context: StreamContext
 
     init {
         val executor: Executor = LocalExecutor()
         val id = Pair(UUID.randomUUID(), UUID.randomUUID())
-        val channelArgs = HashMap<ChannelArg, Any>()
-        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
-        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 10
 
-        val channelBuilder: ChannelBuilder =
-            LocalChannelBuilder(channelArgs)
-        context = StreamContext(executor, channelBuilder, channelArgs, batchSize, ::HashPartitioner)
+
+        val cb = channelBuilder(channelArgs)
+        context = StreamContext(executor, cb, channelArgs, batchSize, ::HashPartitioner)
 
         words = context.createStream(NAME) { sentences.generator() }
 //        words.print()
@@ -53,13 +57,36 @@ class WordCount(private val sentences: SentenceSource, batchSize: Int = 4, heavy
     }
 }
 
-fun main(args: Array<String>) {
-    val file = File(args.getOrElse(0) { "./README.md" })
-    val numRecords = 10000
-    val sentenceLength = 100
-    val sentenceSource = SentenceSource(file, numRecords, sentenceLength)
-    val threshold = (numRecords * sentenceLength) / 50
-    val wordCount = WordCount(sentenceSource, 50, threshold)
-    Log.logLevel = LogLevel.ERROR
-    wordCount.run()
+
+internal class WordCountTest() {
+    val file = File("./README.md")
+    private val numRecords = 10000
+    private val sentenceLength = 100
+    private val threshold = (numRecords * sentenceLength) / 50
+
+    init {
+        Log.logLevel = LogLevel.ERROR
+    }
+
+    @Test
+    fun wordCountTestWithRedisChannel() {
+        val channelArgs = HashMap<ChannelArg, Any>()
+        channelArgs[ChannelArg.REDIS_HOST] = "localhost"
+        channelArgs[ChannelArg.REDIS_PORT] = 6379
+
+        val sentenceSource = SentenceSource(file, numRecords, sentenceLength)
+        val wordCount = WordCount(sentenceSource, 50, threshold, channelArgs, ::RedisChannelBuilder)
+        wordCount.run()
+    }
+
+    @Test
+    fun wordCountTestWithLocalChannel() {
+        val channelArgs = HashMap<ChannelArg, Any>()
+        channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Pair<Instant?, List<Any>?>>>()
+        channelArgs[ChannelArg.MAX_QUEUE_LEN] = 10
+
+        val sentenceSource = SentenceSource(file, numRecords, sentenceLength)
+        val wordCount = WordCount(sentenceSource, 50, threshold, channelArgs, ::LocalChannelBuilder)
+        wordCount.run()
+    }
 }

@@ -1,38 +1,42 @@
 package page.parekh.scalingstream.channels.redis
 
 import page.parekh.scalingstream.channels.*
+import page.parekh.scalingstream.extensions.*
+import redis.clients.jedis.Jedis
 
 class RedisChannelReader<Type>(
-    name: ChannelID,
+    id: ChannelID,
     channelArgs: ChannelArgs
-) : ChannelReader<Type>(name) {
+) : ChannelReader<Type>(id) {
 
     private val host: String = channelArgs.getOrDefault(ChannelArg.REDIS_HOST, "127.0.0.1") as String
     private val port: Int = channelArgs.getOrDefault(ChannelArg.REDIS_PORT, 6379) as Int
     private val db: Int = channelArgs.getOrDefault(ChannelArg.REDIS_DB, 0) as Int
 
-    override val isClosed: Boolean
-        get() = TODO("Not yet implemented")
-    override val isNotClosed: Boolean
-        get() = TODO("Not yet implemented")
-    override val isNotEmpty: Boolean
-        get() = TODO("Not yet implemented")
-    override val isEmpty: Boolean
-        get() = TODO("Not yet implemented")
+    private val jedis = Jedis(host, port)
 
-    override fun connect() {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override val isClosed: Boolean
+        get() = jedis.get("$id-status") != "open"
+    override val isNotClosed: Boolean
+        get() = jedis.get("$id-status") == "open"
+    override val isNotEmpty: Boolean
+        get() = jedis.llen("$id") > 0
+    override val isEmpty: Boolean
+        get() = jedis.llen("$id") == 0L
 
     override fun peek(): Record<Type>? {
-        TODO("Not yet implemented")
+        if (isEmpty) return null
+        return deserializeFromString(jedis.lrange("$id", 0, 0)[0])
     }
 
     override fun get(): Record<Type> {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        if (isClosed && isEmpty) error("Can't read from an empty closed channel.")
+        return deserializeFromString(jedis.blpop(0, "$id")[1])
     }
 
     override fun close() {
-        TODO("Not yet implemented")
+        jedis.close()
     }
+
+    override fun connect() {}
 }
