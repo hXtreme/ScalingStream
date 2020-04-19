@@ -22,7 +22,8 @@ class StreamContext(
 
     init {
         if (channelBuilder.type == LOCAL_TYPE) {
-            if (executor.type != LOCAL_TYPE)
+            //TODO("This check is updated in a makeshift fashion, make it more reasonable.")
+            if (executor.type !in setOf(LOCAL_TYPE, "THRIFT"))
                 error("Local channel can only be used with local executor, provided executor: ${executor.type}")
             channelArgs[ChannelArg.LOCAL_QUEUE_DICT] = HashMap<String, Queue<Any>>()
         }

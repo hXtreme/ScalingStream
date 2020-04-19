@@ -12,6 +12,7 @@ class LocalExecutor : Executor {
 
     private val runningTasks: MutableSet<Pair<Operator<*, *, *, *>, Deployment>> = HashSet()
 
+    @Suppress("DuplicatedCode")
     override fun exec(dag: StreamExecutionDAG) {
 
         for (operators in dag) {
