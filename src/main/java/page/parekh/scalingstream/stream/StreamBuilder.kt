@@ -52,6 +52,10 @@ class StreamBuilder(private val channelBuilder: ChannelBuilder) {
     fun run(executor: Executor) {
         // TODO("Run")
         Log.info("Starting Stream execution")
+        with(Thread(StreamMonitor(streamExecutionDAG))) {
+            this.isDaemon = true
+            this.start()
+        }
         executor.exec(streamExecutionDAG)
         streamExecutionDAG.edgeSet().forEach { it.destroy() }
     }
